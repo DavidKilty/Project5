@@ -2,6 +2,11 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from .forms import TicketForm
 from .models import Ticket
+import stripe
+from django.http import JsonResponse
+
+# Set Stripe API key
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # Payment Page
 def payment_page(request):
@@ -26,3 +31,26 @@ def create_ticket(request):
 def ticket_list(request):
     tickets = Ticket.objects.filter(is_sold=False)  # Show only unsold tickets
     return render(request, 'ticket_list.html', {'tickets': tickets})
+
+# Create Stripe Checkout Session
+def create_checkout_session(request):
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': 'Event Ticket',  # You can customize this based on the ticket
+                    },
+                    'unit_amount': 2000,  # Amount in cents (i.e., $20)
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url='http://localhost:8000/success/',  # Replace with your success URL
+            cancel_url='http://localhost:8000/cancel/',  # Replace with your cancel URL
+        )
+        return JsonResponse({'sessionId': session.id})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
