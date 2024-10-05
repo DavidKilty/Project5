@@ -3,12 +3,10 @@
 {% block title %}Create Ticket{% endblock %}
 
 {% block content %}
-    <h1>Create a Ticket</h1>
+    <h1>Create Ticket</h1>
     <form method="POST">
         {% csrf_token %}
-        <div class="mb-3">
-            {{ form.as_p }}
-        </div>
+        {{ form.as_p }}  <!-- Django will automatically render the dropdown for ticket_type -->
         <button type="submit" class="btn btn-primary">Create Ticket</button>
     </form>
 {% endblock %}

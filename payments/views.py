@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from .forms import TicketForm
 from .models import Ticket
@@ -31,6 +31,26 @@ def create_ticket(request):
 def ticket_list(request):
     tickets = Ticket.objects.filter(is_sold=False)  # Show only unsold tickets
     return render(request, 'ticket_list.html', {'tickets': tickets})
+
+# Edit Ticket Page
+def edit_ticket(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk, seller=request.user)  # Ensure the current user is the seller
+    if request.method == 'POST':
+        form = TicketForm(request.POST, instance=ticket)
+        if form.is_valid():
+            form.save()
+            return redirect('ticket_list')  # Redirect to ticket list after editing
+    else:
+        form = TicketForm(instance=ticket)
+    return render(request, 'edit_ticket.html', {'form': form})
+
+# Delete Ticket Page
+def delete_ticket(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk, seller=request.user)  # Ensure the current user is the seller
+    if request.method == 'POST':
+        ticket.delete()  # Delete the ticket
+        return redirect('ticket_list')  # Redirect to the ticket list after deletion
+    return render(request, 'delete_ticket.html', {'ticket': ticket})
 
 # Create Stripe Checkout Session
 def create_checkout_session(request):
