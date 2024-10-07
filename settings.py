@@ -110,3 +110,9 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STRIPE_WEBHOOK_SECRET = 'whsec_6a835389f61eb2a820c0d6ccecef8bd9ab7c3b35df4aa4dadc443c80cea3e416' 
+
+LOGIN_REDIRECT_URL = 'ticket_list'  
+
+LOGOUT_REDIRECT_URL = 'login'  
+
+
