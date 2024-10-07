@@ -91,13 +91,14 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  
 
-# Location for static files in your project
 STATICFILES_DIRS = [
-    BASE_DIR / 'payments/static',
+    BASE_DIR / 'Project5' / 'payments/static',  # Explicit path with Project5
 ]
 
 # Default primary key field type
