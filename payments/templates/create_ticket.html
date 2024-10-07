@@ -6,7 +6,7 @@
     <h1>Create Ticket</h1>
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}  <!-- Django will automatically render the dropdown for ticket_type -->
+        {{ form.as_p }} 
         <button type="submit" class="btn btn-primary">Create Ticket</button>
     </form>
 {% endblock %}

@@ -20,6 +20,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net'
+]
+
+
 # Application def
 INSTALLED_APPS = [
     'django.contrib.admin',
