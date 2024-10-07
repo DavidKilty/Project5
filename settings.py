@@ -103,3 +103,5 @@ STATICFILES_DIRS = [
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STRIPE_WEBHOOK_SECRET = 'whsec_6a835389f61eb2a820c0d6ccecef8bd9ab7c3b35df4aa4dadc443c80cea3e416' 

@@ -3,7 +3,8 @@ from django.conf import settings
 from .forms import TicketForm
 from .models import Ticket
 import stripe
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 # Set Stripe API key
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -20,9 +21,9 @@ def create_ticket(request):
         form = TicketForm(request.POST)
         if form.is_valid():
             ticket = form.save(commit=False)
-            ticket.seller = request.user  # Assign the current logged-in user as the seller
+            ticket.seller = request.user  
             ticket.save()
-            return redirect('ticket_list')  # Redirect to ticket list after creation
+            return redirect('ticket_list') 
     else:
         form = TicketForm()
     return render(request, 'create_ticket.html', {'form': form})
@@ -34,22 +35,22 @@ def ticket_list(request):
 
 # Edit Ticket Page
 def edit_ticket(request, pk):
-    ticket = get_object_or_404(Ticket, pk=pk, seller=request.user)  # Ensure the current user is the seller
+    ticket = get_object_or_404(Ticket, pk=pk, seller=request.user) 
     if request.method == 'POST':
         form = TicketForm(request.POST, instance=ticket)
         if form.is_valid():
             form.save()
-            return redirect('ticket_list')  # Redirect to ticket list after editing
+            return redirect('ticket_list')  
     else:
         form = TicketForm(instance=ticket)
     return render(request, 'edit_ticket.html', {'form': form})
 
 # Delete Ticket Page
 def delete_ticket(request, pk):
-    ticket = get_object_or_404(Ticket, pk=pk, seller=request.user)  # Ensure the current user is the seller
+    ticket = get_object_or_404(Ticket, pk=pk, seller=request.user) 
     if request.method == 'POST':
-        ticket.delete()  # Delete the ticket
-        return redirect('ticket_list')  # Redirect to the ticket list after deletion
+        ticket.delete()  
+        return redirect('ticket_list')  
     return render(request, 'delete_ticket.html', {'ticket': ticket})
 
 # Create Stripe Checkout Session
@@ -61,16 +62,48 @@ def create_checkout_session(request):
                 'price_data': {
                     'currency': 'usd',
                     'product_data': {
-                        'name': 'Event Ticket',  # You can customize this based on the ticket
+                        'name': 'Event Ticket',  
                     },
-                    'unit_amount': 2000,  # Amount in cents (i.e., $20)
+                    'unit_amount': 2000,  
                 },
                 'quantity': 1,
             }],
             mode='payment',
-            success_url='http://localhost:8000/success/',  # Replace with your success URL
-            cancel_url='http://localhost:8000/cancel/',  # Replace with your cancel URL
+            success_url='http://8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net/success/', 
+            cancel_url='http://8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net/cancel/',  
         )
         return JsonResponse({'sessionId': session.id})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+# Stripe Webhook to handle payment success or failure
+@csrf_exempt
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        return HttpResponse(status=400)  
+    except stripe.error.SignatureVerificationError as e:
+        return HttpResponse(status=400)  
+
+    # Handle the event
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        ticket_id = session.get('client_reference_id')  
+
+        if ticket_id:
+            try:
+                ticket = Ticket.objects.get(id=ticket_id)
+                ticket.is_sold = True
+                ticket.save()
+            except Ticket.DoesNotExist:
+                pass  
+
+    return HttpResponse(status=200)
+
