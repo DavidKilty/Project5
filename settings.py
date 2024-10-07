@@ -118,4 +118,6 @@ LOGIN_REDIRECT_URL = 'ticket_list'
 
 LOGOUT_REDIRECT_URL = 'login'  
 
+import django_heroku
+django_heroku.settings(locals())
 
