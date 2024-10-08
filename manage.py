@@ -10,7 +10,8 @@ def main():
     env = environ.Env()
     environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
+    # Update settings reference to 'myproject.myproject.settings'
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.myproject.settings')
 
     try:
         from django.core.management import execute_from_command_line

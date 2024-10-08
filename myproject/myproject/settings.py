@@ -16,7 +16,7 @@ STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
 
 SECRET_KEY = 'django-insecure-6kl*+q-t(&75*l6mcrn4o@$!8sm(nw%h805dy2*@bk0u_31=l*'
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',
                   'nightspot.herokuapp.com', 
@@ -67,7 +67,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'myproject.myproject.wsgi.application'
+
 
 # Database
 DATABASES = {
@@ -106,8 +107,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'Project5' / 'payments/static',  # Explicit path with Project5
-]
+    BASE_DIR / 'payments' / 'static',  ]
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -120,4 +120,5 @@ LOGOUT_REDIRECT_URL = 'login'
 
 import django_heroku
 django_heroku.settings(locals())
+
 

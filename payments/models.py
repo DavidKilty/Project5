@@ -17,3 +17,4 @@ class Ticket(models.Model):
 
     def __str__(self):
         return f"{self.event_name} - {self.get_ticket_type_display()}"
+        

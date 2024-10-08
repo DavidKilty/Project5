@@ -10,13 +10,18 @@
                 <strong>Event:</strong> {{ ticket.event_name }} | 
                 <strong>Date:</strong> {{ ticket.event_date }} | 
                 <strong>Price:</strong> ${{ ticket.ticket_price }}
-                <div class="float-end">
-                    <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a>
-                    <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
-                </div>
+                
+                <!-- Check if the logged-in user is the seller of the ticket -->
+                {% if ticket.seller == request.user %}
+                    <div class="float-end">
+                        <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                    </div>
+                {% endif %}
             </li>
         {% empty %}
             <li class="list-group-item">No tickets available.</li>
         {% endfor %}
     </ul>
 {% endblock %}
+
