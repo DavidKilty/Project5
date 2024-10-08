@@ -106,8 +106,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'payments' / 'static',  ]
+STATICFILES_DIRS = [BASE_DIR / 'payments' / 'static' / 'payments']
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
