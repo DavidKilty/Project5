@@ -29,9 +29,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'ticket_list' %}">Browse Tickets</a>
                     </li>
-                    <li class="nav-item">
+                    {% if user.is_authenticated %}
+                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'create_ticket' %}">Create Ticket</a>
                     </li>
+                    {% endif %}
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <form method="POST" action="{% url 'logout' %}" style="display:inline;">

@@ -3,14 +3,11 @@
 {% block title %}Purchase Ticket{% endblock %}
 
 {% block content %}
-    <h2>Buy Your Ticket</h2>
+    <h2>Buy & Sell Your Tickets here! Check our listings for what is on offer. </h2>
     
     <form id="payment-form" method="post" action="{% url 'create_checkout_session' %}">
         {% csrf_token %}  
     
-        {% if ticket_is_available %}
-            <button type="submit" id="checkout-button" class="btn btn-success">Pay</button>
-        {% endif %}
     </form>
 
     <script src="https://js.stripe.com/v3/"></script>

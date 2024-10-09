@@ -1,6 +1,8 @@
 import environ
-import os
 from pathlib import Path
+import os
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -116,9 +118,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STRIPE_WEBHOOK_SECRET = 'whsec_6a835389f61eb2a820c0d6ccecef8bd9ab7c3b35df4aa4dadc443c80cea3e416' 
 
+LOGIN_URL = '/login/'
+
 LOGIN_REDIRECT_URL = 'ticket_list'  
 
 LOGOUT_REDIRECT_URL = 'login'  
+
+
 
 import django_heroku
 django_heroku.settings(locals())

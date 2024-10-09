@@ -22,7 +22,7 @@ def create_ticket(request):
         if form.is_valid():
             ticket = form.save(commit=False)
             ticket.seller = request.user  
-            if ticket.event_date >= timezone.now().date():  # Check date is in the future
+            if ticket.event_date.date() >= timezone.now().date():
                 ticket.save()
                 return redirect('ticket_list')
             else:
