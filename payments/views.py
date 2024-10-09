@@ -8,6 +8,10 @@ from django.utils import timezone
 
 stripe.api_key = 'your_stripe_secret_key' 
 
+
+def check_ticket_availability():
+    return True
+    
 def payment(request):
     ticket_is_available = check_ticket_availability()
     return render(request, 'payment.html', {'ticket_is_available': ticket_is_available})
