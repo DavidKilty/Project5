@@ -12,6 +12,3 @@ urlpatterns = [
     path('tickets/<int:pk>/delete/', views.delete_ticket, name='delete_ticket'),  
     path('signup/', views.signup, name='signup'),
 ]
-
-
-
