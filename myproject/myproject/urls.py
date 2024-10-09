@@ -20,7 +20,7 @@ from . import views
 
 urlpatterns = [
     path('create-checkout-session/', views.create_checkout_session, name='checkout-session'),
-    path('payment/', views.payment_page, name='payment'),
+    path('payment/', views.payment, name='payment'),
     path('success/', views.success_page, name='success'),
     path('cancel/', views.cancel_page, name='cancel'),
     path('admin/', admin.site.urls),

@@ -6,8 +6,8 @@ import stripe
 
 stripe.api_key = 'your_stripe_secret_key'  
 
-def payment_page(request):
-    return render(request, 'payment_page.html')
+def payment(request):
+    return render(request, 'payment.html')
 
 def create_ticket(request):
     if request.method == 'POST':
