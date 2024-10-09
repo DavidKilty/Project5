@@ -24,5 +24,6 @@ urlpatterns = [
     path('success/', views.success_page, name='success'),
     path('cancel/', views.cancel_page, name='cancel'),
     path('admin/', admin.site.urls),
-    path('', include('payments.urls')),
+    path('', include('payments.urls')),  
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
 ]

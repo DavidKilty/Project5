@@ -9,14 +9,18 @@
             <li class="list-group-item">
                 <strong>Event:</strong> {{ ticket.event_name }} | 
                 <strong>Date:</strong> {{ ticket.event_date }} | 
-                <strong>Type:</strong> {{ ticket.ticket_type }} | 
                 <strong>Price:</strong> ${{ ticket.ticket_price }}
+                
                 <div class="float-end">
-                    {% if ticket.seller == user %}
-                        <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                    {% if user.is_authenticated %}
+                        {% if ticket.seller == user %}
+                            <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                        {% else %}
+                            <a href="{% url 'create_checkout_session' %}?ticket_id={{ ticket.id }}" class="btn btn-success btn-sm">Buy</a>
+                        {% endif %}
                     {% else %}
-                        <a href="{% url 'create_checkout_session' %}?ticket_id={{ ticket.pk }}" class="btn btn-success btn-sm">Buy</a>
+                        <a href="{% url 'signup' %}" class="btn btn-success btn-sm">Buy</a>
                     {% endif %}
                 </div>
             </li>
