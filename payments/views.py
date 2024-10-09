@@ -4,27 +4,26 @@ from .models import Ticket
 from .forms import TicketForm
 import stripe
 
-stripe.api_key = 'your_stripe_secret_key'  
+stripe.api_key = 'your_stripe_secret_key'
+
+def check_ticket_availability():
+    return True
 
 def payment(request):
-
     ticket_is_available = check_ticket_availability()
-
-    return render(request, 'payment.html')
-
+    return render(request, 'payment.html', {'ticket_is_available': ticket_is_available})
 
 def create_ticket(request):
     if request.method == 'POST':
         form = TicketForm(request.POST)
         if form.is_valid():
             ticket = form.save(commit=False)
-            ticket.seller = request.user  # Assign the logged-in user as the seller
+            ticket.seller = request.user
             ticket.save()
             return redirect('ticket_list')
     else:
         form = TicketForm()
     return render(request, 'create_ticket.html', {'form': form})
-
 
 def ticket_list(request):
     tickets = Ticket.objects.all()
@@ -60,7 +59,6 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 def stripe_webhook(request):
-  
     pass
 
 def create_checkout_session(request):
@@ -86,4 +84,3 @@ def create_checkout_session(request):
     )
 
     return JsonResponse({'id': session.id})
-
