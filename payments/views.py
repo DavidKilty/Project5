@@ -8,10 +8,10 @@ from django.utils import timezone
 
 stripe.api_key = 'your_stripe_secret_key' 
 
-
-def check_ticket_availability():
-    return True
+def check_ticket_availability(ticket):
     
+    return ticket.event_date >= timezone.now()
+
 def payment(request):
     ticket_is_available = check_ticket_availability()
     return render(request, 'payment.html', {'ticket_is_available': ticket_is_available})
@@ -22,7 +22,7 @@ def create_ticket(request):
         if form.is_valid():
             ticket = form.save(commit=False)
             ticket.seller = request.user  
-            if ticket.event_date.date() >= timezone.now().date():
+            if ticket.event_date >= timezone.now().date():  
                 ticket.save()
                 return redirect('ticket_list')
             else:
@@ -34,13 +34,15 @@ def create_ticket(request):
 @login_required
 def ticket_list(request):
     tickets = Ticket.objects.all()
+    for ticket in tickets:
+        ticket.is_available = check_ticket_availability(ticket)
     return render(request, 'ticket_list.html', {'tickets': tickets})
 
 @login_required
 def edit_ticket(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
     if request.user != ticket.seller:
-        return redirect('ticket_list')  # Seller can edit their own ticket
+        return redirect('ticket_list')
     if request.method == 'POST':
         form = TicketForm(request.POST, instance=ticket)
         if form.is_valid():
@@ -54,7 +56,7 @@ def edit_ticket(request, pk):
 def delete_ticket(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
     if request.user != ticket.seller:
-        return redirect('ticket_list')  # Seller can delete their own ticket
+        return redirect('ticket_list')
     if request.method == 'POST':
         ticket.delete()
         return redirect('ticket_list')
@@ -80,7 +82,7 @@ def create_checkout_session(request):
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
     if ticket.seller == request.user:
-        return redirect('ticket_list')  # Prevent from buying their own ticket
+        return redirect('ticket_list')  
 
     session = stripe.checkout.Session.create(
         payment_method_types=['card'],

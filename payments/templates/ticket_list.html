@@ -3,29 +3,32 @@
 {% block title %}Available Tickets{% endblock %}
 
 {% block content %}
-    <h1>Available Tickets</h1>
-    <ul class="list-group">
-        {% for ticket in tickets %}
-            <li class="list-group-item">
-                <strong>Event:</strong> {{ ticket.event_name }} | 
-                <strong>Date:</strong> {{ ticket.event_date }} | 
-                <strong>Price:</strong> ${{ ticket.ticket_price }}
-                
-                <div class="float-end">
-                    {% if user.is_authenticated %}
-                        {% if ticket.seller == user %}
-                            <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
-                        {% else %}
-                            <a href="{% url 'create_checkout_session' %}?ticket_id={{ ticket.id }}" class="btn btn-success btn-sm">Buy</a>
+<h1>Available Tickets</h1>
+<ul class="list-group">
+    {% for ticket in tickets %}
+        <li class="list-group-item">
+            <strong>Event:</strong> {{ ticket.event_name }} | 
+            <strong>Date:</strong> {{ ticket.event_date }} | 
+            <strong>Price:</strong> ${{ ticket.ticket_price }}
+
+            <div class="float-end">
+                {% if user.is_authenticated %}
+                    {% if user != ticket.seller %}
+                        {% if ticket.is_available %}
+                            <form method="post" action="{% url 'create_checkout_session' %}?ticket_id={{ ticket.id }}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-sm">Buy</button>
+                            </form>
                         {% endif %}
-                    {% else %}
-                        <a href="{% url 'signup' %}" class="btn btn-success btn-sm">Buy</a>
                     {% endif %}
-                </div>
-            </li>
-        {% empty %}
-            <li class="list-group-item">No tickets available.</li>
-        {% endfor %}
-    </ul>
+                    <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                {% endif %}
+            </div>
+        </li>
+    {% empty %}
+        <li class="list-group-item">No tickets available.</li>
+    {% endfor %}
+</ul>
 {% endblock %}
+
