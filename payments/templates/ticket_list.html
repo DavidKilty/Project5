@@ -9,17 +9,15 @@
             <li class="list-group-item">
                 <strong>Event:</strong> {{ ticket.event_name }} | 
                 <strong>Date:</strong> {{ ticket.event_date }} | 
-                <strong>Price:</strong> ${{ ticket.ticket_price }} | 
-                <strong>Type:</strong> {{ ticket.ticket_type }} 
+                <strong>Type:</strong> {{ ticket.ticket_type }} | 
+                <strong>Price:</strong> ${{ ticket.ticket_price }}
                 <div class="float-end">
-                    {% if user == ticket.owner %}
+                    {% if ticket.seller == user %}
                         <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a>
                         <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                    {% else %}
+                        <a href="{% url 'create_checkout_session' %}?ticket_id={{ ticket.pk }}" class="btn btn-success btn-sm">Buy</a>
                     {% endif %}
-                    <form action="{% url 'create_checkout_session' %}" method="get" class="d-inline">
-                        <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
-                        <button type="submit" class="btn btn-primary btn-sm">Buy Now</button>
-                    </form>
                 </div>
             </li>
         {% empty %}

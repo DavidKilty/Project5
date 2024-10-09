@@ -3,11 +3,10 @@ from django.http import JsonResponse
 from .models import Ticket
 from .forms import TicketForm
 import stripe
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
-stripe.api_key = 'your_stripe_secret_key'
-
-def check_ticket_availability():
-    return True
+stripe.api_key = 'your_stripe_secret_key' 
 
 def payment(request):
     ticket_is_available = check_ticket_availability()
@@ -18,19 +17,26 @@ def create_ticket(request):
         form = TicketForm(request.POST)
         if form.is_valid():
             ticket = form.save(commit=False)
-            ticket.seller = request.user
-            ticket.save()
-            return redirect('ticket_list')
+            ticket.seller = request.user  
+            if ticket.event_date >= timezone.now().date():  # Check date is in the future
+                ticket.save()
+                return redirect('ticket_list')
+            else:
+                form.add_error('event_date', 'Event date cannot be in the past.')
     else:
         form = TicketForm()
     return render(request, 'create_ticket.html', {'form': form})
 
+@login_required
 def ticket_list(request):
     tickets = Ticket.objects.all()
     return render(request, 'ticket_list.html', {'tickets': tickets})
 
+@login_required
 def edit_ticket(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
+    if request.user != ticket.seller:
+        return redirect('ticket_list')  # Seller can edit their own ticket
     if request.method == 'POST':
         form = TicketForm(request.POST, instance=ticket)
         if form.is_valid():
@@ -40,8 +46,11 @@ def edit_ticket(request, pk):
         form = TicketForm(instance=ticket)
     return render(request, 'edit_ticket.html', {'form': form})
 
+@login_required
 def delete_ticket(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
+    if request.user != ticket.seller:
+        return redirect('ticket_list')  # Seller can delete their own ticket
     if request.method == 'POST':
         ticket.delete()
         return redirect('ticket_list')
@@ -59,12 +68,16 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 def stripe_webhook(request):
-    pass
+    pass  
 
+@login_required
 def create_checkout_session(request):
     ticket_id = request.GET.get('ticket_id')
     ticket = get_object_or_404(Ticket, id=ticket_id)
-    
+
+    if ticket.seller == request.user:
+        return redirect('ticket_list')  # Prevent from buying their own ticket
+
     session = stripe.checkout.Session.create(
         payment_method_types=['card'],
         line_items=[{
