@@ -8,9 +8,6 @@ from django.utils import timezone
 
 stripe.api_key = 'your_stripe_secret_key' 
 
-def check_ticket_availability(ticket):
-    
-    return ticket.event_date >= timezone.now()
 
 def payment(request):
     ticket_is_available = check_ticket_availability()
