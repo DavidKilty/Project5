@@ -10,7 +10,6 @@ stripe.api_key = 'your_stripe_secret_key'
 
 
 def payment(request):
-    ticket_is_available = check_ticket_availability()
     return render(request, 'payment.html', {'ticket_is_available': ticket_is_available})
 
 def create_ticket(request):
@@ -32,7 +31,6 @@ def create_ticket(request):
 def ticket_list(request):
     tickets = Ticket.objects.all()
     for ticket in tickets:
-        ticket.is_available = check_ticket_availability(ticket)
     return render(request, 'ticket_list.html', {'tickets': tickets})
 
 @login_required
