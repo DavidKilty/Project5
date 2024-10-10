@@ -18,3 +18,11 @@ class Ticket(models.Model):
     def __str__(self):
         return f"{self.event_name} - {self.get_ticket_type_display()}"
         
+from django.db import models
+
+class FAQ(models.Model):
+    question = models.CharField(max_length=255)
+    answer = models.TextField()
+
+    def __str__(self):
+        return self.question

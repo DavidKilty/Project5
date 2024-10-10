@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from .models import Ticket
+from .models import Ticket, FAQ
 from .forms import TicketForm
 import stripe
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.contrib.auth.forms import UserCreationForm
 
 stripe.api_key = 'your_stripe_secret_key' 
-
 
 def payment(request):
     return render(request, 'payment.html')
@@ -18,7 +18,7 @@ def create_ticket(request):
         if form.is_valid():
             ticket = form.save(commit=False)
             ticket.seller = request.user  
-            if ticket.event_date >= timezone.now().date():  
+            if ticket.event_date >= timezone.now():  
                 ticket.save()
                 return redirect('ticket_list')
             else:
@@ -30,8 +30,7 @@ def create_ticket(request):
 @login_required
 def ticket_list(request):
     tickets = Ticket.objects.all()
-    for ticket in tickets:
-        return render(request, 'ticket_list.html', {'tickets': tickets})
+    return render(request, 'ticket_list.html', {'tickets': tickets})
 
 @login_required
 def edit_ticket(request, pk):
@@ -98,3 +97,13 @@ def create_checkout_session(request):
     )
 
     return JsonResponse({'id': session.id})
+
+def faq_list(request):
+    faqs = FAQ.objects.all()
+    return render(request, 'faq_list.html', {'faqs': faqs})
+
+def success_page(request):
+    return render(request, 'success.html')
+
+def cancel_page(request):
+    return render(request, 'cancel.html')
