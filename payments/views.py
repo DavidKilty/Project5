@@ -1,11 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from django.http import HttpResponse
 from .models import Ticket, FAQ
-from .forms import TicketForm
+from .forms import TicketForm, ContactForm  
+from django.contrib.sitemaps import Sitemap
 import stripe
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib.auth.forms import UserCreationForm
+from django.core.mail import send_mail
+from django.conf import settings
 
 stripe.api_key = 'your_stripe_secret_key' 
 
@@ -107,3 +111,36 @@ def success_page(request):
 
 def cancel_page(request):
     return render(request, 'cancel.html')
+
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            from_email = form.cleaned_data['email']
+            send_mail(subject, message, from_email, [settings.DEFAULT_FROM_EMAIL])
+            return redirect('success')  
+    else:
+        form = ContactForm()
+
+    return render(request, 'contact.html', {'form': form})
+
+class TicketSitemap(Sitemap):
+    changefreq = "daily"
+    priority = 0.8
+
+    def items(self):
+        return Ticket.objects.all()
+
+    def lastmod(self, obj):
+        return obj.updated_at
+
+def robots_txt(request):
+    lines = [
+        "User-Agent: *",
+        "Disallow: /admin/",
+        "Allow: /",
+        "Sitemap: https://nightspot-d83df74ddcea.herokuapp.com/sitemap.xml",  
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")

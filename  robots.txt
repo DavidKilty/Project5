@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /private/
+Allow: /
+Sitemap: https://nightspot-d83df74ddcea.herokuapp.com/sitemap.xml

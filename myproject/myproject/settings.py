@@ -7,11 +7,9 @@ STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Initialize environment vars
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))  
 
-# Stripe config
 STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
 
@@ -30,7 +28,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
-# Application def
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -39,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'payments',
+    'django.contrib.sitemaps',
 ]
 
 MIDDLEWARE = [
@@ -124,9 +123,14 @@ LOGIN_REDIRECT_URL = 'ticket_list'
 
 LOGOUT_REDIRECT_URL = 'login'  
 
-
-
 import django_heroku
 django_heroku.settings(locals())
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your_email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your_password'
+DEFAULT_FROM_EMAIL = 'your_email@gmail.com'
 
