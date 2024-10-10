@@ -10,7 +10,6 @@ sitemaps = {
     'tickets': TicketSitemap,
 }
 
-
 urlpatterns = [
     path('create-checkout-session/', views.create_checkout_session, name='checkout-session'),
     path('payment/', views.payment, name='payment'),
