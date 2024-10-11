@@ -19,8 +19,6 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('faq/', views.faq_list, name='faq_list'),
     path('contact/', views.contact, name='contact'),
-    path('robots.txt', views.robots_txt, name='robots_txt')
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]
-
