@@ -144,3 +144,7 @@ def robots_txt(request):
         "Sitemap: https://nightspot-d83df74ddcea.herokuapp.com/sitemap.xml",  
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
+
+def ticket_detail(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk)
+    return render(request, 'ticket_detail.html', {'ticket': ticket})

@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -17,8 +18,10 @@ class Ticket(models.Model):
 
     def __str__(self):
         return f"{self.event_name} - {self.get_ticket_type_display()}"
-        
-from django.db import models
+
+    def get_absolute_url(self):
+        # Return the URL for the ticket detail page
+        return reverse('ticket_detail', args=[str(self.pk)])
 
 class FAQ(models.Model):
     question = models.CharField(max_length=255)

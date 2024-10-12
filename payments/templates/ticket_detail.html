@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Ticket Detail{% endblock %}
+
+{% block content %}
+    <h1>{{ ticket.event_name }}</h1>
+    <p><strong>Date:</strong> {{ ticket.event_date }}</p>
+    <p><strong>Ticket Type:</strong> {{ ticket.get_ticket_type_display }}</p>
+    <p><strong>Price:</strong> ${{ ticket.ticket_price }}</p>
+    <p><strong>Seller:</strong> {{ ticket.seller.username }}</p>
+{% endblock %}
