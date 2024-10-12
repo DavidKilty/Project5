@@ -15,12 +15,12 @@ class Ticket(models.Model):
     ticket_price = models.DecimalField(max_digits=10, decimal_places=2)
     is_sold = models.BooleanField(default=False)
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
+    modified_at = models.DateTimeField(auto_now=True) 
 
     def __str__(self):
         return f"{self.event_name} - {self.get_ticket_type_display()}"
 
     def get_absolute_url(self):
-        # Return the URL for the ticket detail page
         return reverse('ticket_detail', args=[str(self.pk)])
 
 class FAQ(models.Model):
