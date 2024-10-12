@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Success{% endblock %}
+
+{% block content %}
+  <h1>Success!</h1>
+  
+  {% if message_type == 'payment' %}
+    <p>Your payment was successful. Thank you for your purchase!</p>
+  {% elif message_type == 'contact' %}
+    <p>Your message has been sent successfully. We will get back to you soon.</p>
+  {% else %}
+    <p>Your request was processed successfully.</p>
+  {% endif %}
+  
+  <a href="{% url 'home' %}" class="btn btn-primary">Go to Home</a>
+{% endblock %}
