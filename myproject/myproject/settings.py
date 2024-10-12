@@ -135,3 +135,14 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'nightspotoperations@gmail.com'
 EMAIL_HOST_PASSWORD = 'npuaptrrfhwhaptu'  
 DEFAULT_FROM_EMAIL = 'nightspotoperations@gmail.com'
+BREVO_API_KEY = '6IrQZOwEXdqnhyRg'
+
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'debug',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger',
+}

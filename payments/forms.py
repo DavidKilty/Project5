@@ -35,3 +35,6 @@ class ContactForm(forms.Form):
     email = forms.EmailField()
     subject = forms.CharField(max_length=100)
     message = forms.CharField(widget=forms.Textarea)
+
+class NewsletterSignupForm(forms.Form):
+    email = forms.EmailField(label="Email", max_length=255, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter your email'}))

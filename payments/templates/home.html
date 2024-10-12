@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+  <h1>Welcome to Night Spot!</h1>
+  <p>Discover the best tickets for exclusive nightlife events.</p>
+  <a href="{% url 'ticket_list' %}" class="btn btn-primary">Browse Tickets</a>
+{% endblock %}
