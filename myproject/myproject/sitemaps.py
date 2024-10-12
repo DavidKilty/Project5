@@ -1,5 +1,5 @@
 from django.contrib.sitemaps import Sitemap
-from .models import Ticket
+from payments.models import Ticket 
 
 class TicketSitemap(Sitemap):
     changefreq = 'daily'
