@@ -162,32 +162,30 @@ def ticket_detail(request, pk):
 
 def newsletter_signup(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
+        form = NewsletterSignupForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
 
-        if email:
-            response = requests.post(
-                'https://api.brevo.com/v3/contacts',
-                headers={
-                    'accept': 'application/json',
-                    'api-key': settings.BREVO_API_KEY,
-                    'content-type': 'application/json',
-                },
-                json={
-                    'email': email,
-                    'listIds': [2],  # Replace with your list ID from Brevo
-                    'updateEnabled': True
-                }
-            )
+            configuration = sib_api_v3_sdk.Configuration()
+            configuration.api_key['api-key'] = settings.BREVO_API_KEY  # Use API key from settings
 
-            if response.status_code == 201:
-                return redirect('success_contact')
-            else:
-                error_message = "Unable to sign up for the newsletter. Please try again later."
-                return render(request, 'newsletter_signup.html', {'error': error_message})
+            api_instance = sib_api_v3_sdk.ContactsApi(sib_api_v3_sdk.ApiClient(configuration))
 
-    return render(request, 'newsletter_signup.html')
+            contact = sib_api_v3_sdk.CreateContact(email=email)
 
-BREVO_API_KEY = '6IrQZOwEXdqnhyRg'
+            try:
+                api_instance.create_contact(contact)
+                messages.success(request, "You've successfully subscribed to the newsletter.")
+            except ApiException as e:
+                messages.error(request, "An error occurred while trying to subscribe: {}".format(e))
+
+            return redirect('newsletter_signup')
+
+    else:
+        form = NewsletterSignupForm()
+
+    return render(request, 'newsletter_signup.html', {'form': form})
+
 
 def newsletter_signup(request):
     if request.method == 'POST':
