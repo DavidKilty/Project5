@@ -135,7 +135,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'nightspotoperations@gmail.com'
 EMAIL_HOST_PASSWORD = 'npuaptrrfhwhaptu'  
 DEFAULT_FROM_EMAIL = 'nightspotoperations@gmail.com'
-BREVO_API_KEY = '6IrQZOwEXdqnhyRg'
+BREVO_API_KEY = env('BREVO_API_KEY')
 
 from django.contrib.messages import constants as messages
 

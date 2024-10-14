@@ -5,6 +5,14 @@
 {% block content %}
   <h2>Subscribe to Our Newsletter</h2>
 
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
   {% if error %}
     <p style="color: red;">{{ error }}</p>
   {% endif %}
