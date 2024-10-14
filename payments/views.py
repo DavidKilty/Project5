@@ -195,7 +195,7 @@ def newsletter_signup(request):
 
 
             configuration = sib_api_v3_sdk.Configuration()
-            configuration.api_key['api-key'] = BREVO_API_KEY
+            configuration.api_key['api-key'] = settings.BREVO_API_KEY
             api_instance = sib_api_v3_sdk.ContactsApi(sib_api_v3_sdk.ApiClient(configuration))
 
 
