@@ -10,7 +10,6 @@ def main():
     env = environ.Env()
     environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-    # Update settings reference to 'myproject.myproject.settings'
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.myproject.settings')
 
     try:

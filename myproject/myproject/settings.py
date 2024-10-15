@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = env('SECRET_KEY')  
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',
