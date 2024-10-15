@@ -1,34 +1,28 @@
 import environ
 from pathlib import Path
 import os
-STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
-STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
-
-
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))  
+environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
 
 STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-6kl*+q-t(&75*l6mcrn4o@$!8sm(nw%h805dy2*@bk0u_31=l*'
+SECRET_KEY = env('SECRET_KEY')  
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',
-                  'nightspot.herokuapp.com', 
-                  'nightspot.onrender.com' ,
-                  
+ALLOWED_HOSTS = [
+    '8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',
+    'nightspot.herokuapp.com', 
+    'nightspot.onrender.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net'
 ]
-
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -72,7 +66,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'myproject.myproject.wsgi.application'
 
 
-# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -80,7 +73,6 @@ DATABASES = {
     }
 }
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -102,39 +94,33 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_DIRS = [
     BASE_DIR.parent / 'payments' / 'static',
 ]
 
-
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STRIPE_WEBHOOK_SECRET = 'whsec_6a835389f61eb2a820c0d6ccecef8bd9ab7c3b35df4aa4dadc443c80cea3e416' 
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET')  
 
 LOGIN_URL = '/login/'
 
-LOGIN_REDIRECT_URL = 'ticket_list'  
+LOGIN_REDIRECT_URL = 'ticket_list'
 
-LOGOUT_REDIRECT_URL = 'login'  
+LOGOUT_REDIRECT_URL = 'login'
 
 import django_heroku
 django_heroku.settings(locals())
-
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'nightspotoperations@gmail.com'
-EMAIL_HOST_PASSWORD = 'npuaptrrfhwhaptu'  
-DEFAULT_FROM_EMAIL = 'nightspotoperations@gmail.com'
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')  
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') 
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')  
 BREVO_API_KEY = env('BREVO_API_KEY')
 
 from django.contrib.messages import constants as messages

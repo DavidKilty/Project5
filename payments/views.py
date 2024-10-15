@@ -15,7 +15,7 @@ from sib_api_v3_sdk.rest import ApiException
 from .forms import NewsletterSignupForm
 from django.contrib import messages
 
-stripe.api_key = 'your_stripe_secret_key' 
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def success_page(request):
     return render(request, 'success.html', {'message_type': 'payment'})
@@ -51,7 +51,7 @@ def ticket_list(request):
     return render(request, 'ticket_list.html', {'tickets': tickets})
 
 @login_required
-def edit_ticket(request, pk):
+def edit_ticket(request, pk):  
     ticket = get_object_or_404(Ticket, pk=pk)
     if request.user != ticket.seller:
         return redirect('ticket_list')
@@ -59,6 +59,7 @@ def edit_ticket(request, pk):
         form = TicketForm(request.POST, instance=ticket)
         if form.is_valid():
             form.save()
+            ticket.check_availability() 
             return redirect('ticket_list')
     else:
         form = TicketForm(instance=ticket)
@@ -114,7 +115,12 @@ def create_checkout_session(request):
         cancel_url=request.build_absolute_uri('/cancel/'),
     )
 
+    ticket.is_sold = True
+    ticket.check_availability()
+    ticket.save()
+
     return JsonResponse({'id': session.id})
+
 
 def faq_list(request):
     faqs = FAQ.objects.all()

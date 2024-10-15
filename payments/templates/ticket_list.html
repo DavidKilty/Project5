@@ -13,16 +13,15 @@
 
             <div class="float-end">
                 {% if user.is_authenticated %}
-                    {% if user != ticket.seller %}
-                        {% if ticket.is_available %}
-                            <form method="post" action="{% url 'create_checkout_session' %}?ticket_id={{ ticket.id }}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-success btn-sm">Buy</button>
-                            </form>
-                        {% endif %}
+                    {% if user == ticket.seller %}
+                        <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a> 
+                        <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                    {% elif ticket.is_available %}
+                        <form method="post" action="{% url 'create_checkout_session' %}?ticket_id={{ ticket.id }}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-sm">Buy</button>
+                        </form>
                     {% endif %}
-                    <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a>
-                    <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
                 {% endif %}
             </div>
         </li>

@@ -17,6 +17,11 @@ class TicketForm(forms.ModelForm):
         if event_date < timezone.now():
             raise forms.ValidationError("The event date cannot be in the past.")
         return event_date
+    def clean_ticket_price(self):
+        price = self.cleaned_data.get('ticket_price')
+        if price < 1:
+            raise forms.ValidationError('Ticket price must be at least 1 EUR.')
+        return price
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(required=True)
