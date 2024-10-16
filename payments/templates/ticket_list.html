@@ -28,6 +28,7 @@
         <li class="list-group-item">No tickets available.</li>
     {% endfor %}
 </ul>
+<p>{{ STRIPE_PUBLISHABLE_KEY }}</p>
 <span id="stripe-publishable-key" style="display:none;">{{ STRIPE_PUBLISHABLE_KEY }}</span>
 {% endblock %}
 
