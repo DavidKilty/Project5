@@ -11,7 +11,7 @@
         <li class="list-group-item">
             <strong>Event:</strong> {{ ticket.event_name }} | 
             <strong>Date:</strong> {{ ticket.event_date }} | 
-            <strong>Price:</strong> ${{ ticket.ticket_price }}
+            <strong>Price:</strong> €{{ ticket.ticket_price }}
 
             <div class="float-end">
                 {% if user.is_authenticated %}
@@ -19,7 +19,10 @@
                         <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a> 
                         <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
                     {% elif ticket.is_available %}
-                        <button type="button" class="btn btn-success btn-sm checkout-button" data-ticket-id="{{ ticket.id }}">Buy</button>
+                        <stripe-buy-button
+                            buy-button-id="buy_btn_1QAaarLdhgSQpHsXI9ZGK35c"
+                            publishable-key="{{ STRIPE_PUBLISHABLE_KEY }}">
+                        </stripe-buy-button>
                     {% endif %}
                 {% endif %}
             </div>
@@ -28,12 +31,8 @@
         <li class="list-group-item">No tickets available.</li>
     {% endfor %}
 </ul>
-<p>{{ STRIPE_PUBLISHABLE_KEY }}</p>
-<span id="stripe-publishable-key" style="display:none;">{{ STRIPE_PUBLISHABLE_KEY }}</span>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://js.stripe.com/v3/"></script>
-<script src="{% static 'payments/js/stripe_checkout.js' %}"></script>
+<script async src="https://js.stripe.com/v3/buy-button.js"></script>
 {% endblock %}
-

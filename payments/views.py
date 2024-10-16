@@ -101,7 +101,7 @@ def create_checkout_session(request):
         payment_method_types=['card'],
         line_items=[{
             'price_data': {
-                'currency': 'usd',
+                'currency': 'eur',
                 'product_data': {
                     'name': ticket.event_name,
                     'description': f"Ticket type: {ticket.ticket_type}",
@@ -114,6 +114,9 @@ def create_checkout_session(request):
         success_url=request.build_absolute_uri('/success/'),
         cancel_url=request.build_absolute_uri('/cancel/'),
     )
+
+    ticket.is_sold = True
+    ticket.save()
 
     return JsonResponse({'id': session.id})
 
