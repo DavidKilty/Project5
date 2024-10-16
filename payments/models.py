@@ -18,7 +18,6 @@ class Ticket(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True)
     
-    # New field to track availability
     is_available = models.BooleanField(default=True)
 
     def __str__(self):

@@ -95,7 +95,7 @@ def create_checkout_session(request):
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
     if ticket.seller == request.user:
-        return redirect('ticket_list')  
+        return redirect('ticket_list')
 
     session = stripe.checkout.Session.create(
         payment_method_types=['card'],
@@ -115,11 +115,31 @@ def create_checkout_session(request):
         cancel_url=request.build_absolute_uri('/cancel/'),
     )
 
-    ticket.is_sold = True
-    ticket.check_availability()
-    ticket.save()
-
     return JsonResponse({'id': session.id})
+
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError as e:
+        return HttpResponse(status=400)
+
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        ticket_id = session.get('client_reference_id')
+        if ticket_id:
+            ticket = Ticket.objects.get(id=ticket_id)
+            ticket.is_sold = True
+            ticket.save()
+
+    return HttpResponse(status=200)
 
 
 def faq_list(request):

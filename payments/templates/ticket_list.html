@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}Available Tickets{% endblock %}
 
 {% block content %}
@@ -17,10 +19,7 @@
                         <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a> 
                         <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
                     {% elif ticket.is_available %}
-                        <form method="post" action="{% url 'create_checkout_session' %}?ticket_id={{ ticket.id }}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-success btn-sm">Buy</button>
-                        </form>
+                        <button type="button" class="btn btn-success btn-sm checkout-button" data-ticket-id="{{ ticket.id }}">Buy</button>
                     {% endif %}
                 {% endif %}
             </div>
@@ -29,5 +28,11 @@
         <li class="list-group-item">No tickets available.</li>
     {% endfor %}
 </ul>
+<span id="stripe-publishable-key" style="display:none;">{{ STRIPE_PUBLISHABLE_KEY }}</span>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
+<script src="{% static 'payments/js/stripe_checkout.js' %}"></script>
 {% endblock %}
 
