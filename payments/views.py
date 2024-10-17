@@ -48,7 +48,12 @@ def create_ticket(request):
 @login_required
 def ticket_list(request):
     tickets = Ticket.objects.all()
-    return render(request, 'ticket_list.html', {'tickets': tickets})
+    context = {
+        'tickets': tickets,
+        'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY
+    }
+    return render(request, 'ticket_list.html', context)
+
 
 @login_required
 def edit_ticket(request, pk):  
