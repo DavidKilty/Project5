@@ -90,7 +90,7 @@ def stripe_webhook(request):
     pass  
 
 @login_required
-def create_checkout_session(request):
+def create_checkout_session(request): 
     ticket_id = request.GET.get('ticket_id')
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
@@ -115,8 +115,7 @@ def create_checkout_session(request):
         cancel_url=request.build_absolute_uri('/cancel/'),
     )
 
-    ticket.is_sold = True
-    ticket.save()
+    
 
     return JsonResponse({'id': session.id})
 
@@ -139,11 +138,9 @@ def stripe_webhook(request):
         ticket_id = session.get('client_reference_id')
         if ticket_id:
             ticket = Ticket.objects.get(id=ticket_id)
-            ticket.is_sold = True
-            ticket.save()
+            ticket.delete()
 
     return HttpResponse(status=200)
-
 
 def faq_list(request):
     faqs = FAQ.objects.all()
@@ -203,35 +200,6 @@ def newsletter_signup(request):
             contact = sib_api_v3_sdk.CreateContact(email=email)
 
             try:
-                api_instance.create_contact(contact)
-                messages.success(request, "You've successfully subscribed to the newsletter.")
-            except ApiException as e:
-                messages.error(request, "An error occurred while trying to subscribe: {}".format(e))
-
-            return redirect('newsletter_signup')
-
-    else:
-        form = NewsletterSignupForm()
-
-    return render(request, 'newsletter_signup.html', {'form': form})
-
-
-def newsletter_signup(request):
-    if request.method == 'POST':
-        form = NewsletterSignupForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-
-
-            configuration = sib_api_v3_sdk.Configuration()
-            configuration.api_key['api-key'] = settings.BREVO_API_KEY
-            api_instance = sib_api_v3_sdk.ContactsApi(sib_api_v3_sdk.ApiClient(configuration))
-
-
-            contact = sib_api_v3_sdk.CreateContact(email=email)
-
-            try:
-
                 api_instance.create_contact(contact)
                 messages.success(request, "You've successfully subscribed to the newsletter.")
             except ApiException as e:

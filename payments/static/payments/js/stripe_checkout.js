@@ -26,4 +26,4 @@ document.querySelectorAll(".checkout-button").forEach(button => {
             console.error("Error:", error);
         });
     });
-});
+});  

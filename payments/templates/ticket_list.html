@@ -19,10 +19,9 @@
                         <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a> 
                         <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
                     {% elif ticket.is_available %}
-                        <stripe-buy-button
-                            buy-button-id="buy_btn_1QAaarLdhgSQpHsXI9ZGK35c"
-                            publishable-key="{{ STRIPE_PUBLISHABLE_KEY }}">
-                        </stripe-buy-button>
+
+                    <button type="button" class="btn btn-success btn-sm checkout-button" data-ticket-id="{{ ticket.id }}">Buy</button>
+
                     {% endif %}
                 {% endif %}
             </div>
@@ -34,5 +33,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script async src="https://js.stripe.com/v3/buy-button.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="{% static 'payments/js/stripe_checkout.js' %}"></script>
 {% endblock %}
