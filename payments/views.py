@@ -1,30 +1,32 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from .models import Ticket, FAQ
-from .forms import TicketForm, ContactForm  
+from .forms import TicketForm, ContactForm
 from django.contrib.sitemaps import Sitemap
-import stripe
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.core.mail import send_mail
+from django.contrib import messages
+import stripe
 import requests
-from django.conf import settings
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from .forms import NewsletterSignupForm
-from django.contrib import messages
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def success_page(request):
     return render(request, 'success.html', {'message_type': 'payment'})
 
+
 def success_contact(request):
     return render(request, 'success.html', {'message_type': 'contact'})
 
+
 def payment(request):
     return render(request, 'payment.html')
+
 
 def home(request):
     return render(request, 'home.html')
@@ -35,8 +37,8 @@ def create_ticket(request):
         form = TicketForm(request.POST)
         if form.is_valid():
             ticket = form.save(commit=False)
-            ticket.seller = request.user  
-            if ticket.event_date >= timezone.now():  
+            ticket.seller = request.user
+            if ticket.event_date >= timezone.now():
                 ticket.save()
                 return redirect('ticket_list')
             else:
@@ -44,6 +46,7 @@ def create_ticket(request):
     else:
         form = TicketForm()
     return render(request, 'create_ticket.html', {'form': form})
+
 
 @login_required
 def ticket_list(request):
@@ -56,7 +59,7 @@ def ticket_list(request):
 
 
 @login_required
-def edit_ticket(request, pk):  
+def edit_ticket(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
     if request.user != ticket.seller:
         return redirect('ticket_list')
@@ -64,11 +67,12 @@ def edit_ticket(request, pk):
         form = TicketForm(request.POST, instance=ticket)
         if form.is_valid():
             form.save()
-            ticket.check_availability() 
+            ticket.check_availability()
             return redirect('ticket_list')
     else:
         form = TicketForm(instance=ticket)
     return render(request, 'edit_ticket.html', {'form': form})
+
 
 @login_required
 def delete_ticket(request, pk):
@@ -80,6 +84,7 @@ def delete_ticket(request, pk):
         return redirect('ticket_list')
     return render(request, 'delete_ticket.html', {'ticket': ticket})
 
+
 def signup(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -88,14 +93,14 @@ def signup(request):
             return redirect('login')
     else:
         form = UserCreationForm()
-    
+
     return render(request, 'signup.html', {'form': form})
 
-def stripe_webhook(request):
-    pass  
 
 @login_required
-def create_checkout_session(request): 
+def create_checkout_session(request):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
     ticket_id = request.GET.get('ticket_id')
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
@@ -120,9 +125,8 @@ def create_checkout_session(request):
         cancel_url=request.build_absolute_uri('/cancel/'),
     )
 
-    
-
     return JsonResponse({'id': session.id})
+
 
 def stripe_webhook(request):
     payload = request.body
@@ -147,12 +151,15 @@ def stripe_webhook(request):
 
     return HttpResponse(status=200)
 
+
 def faq_list(request):
     faqs = FAQ.objects.all()
     return render(request, 'faq_list.html', {'faqs': faqs})
 
+
 def cancel_page(request):
     return render(request, 'cancel.html')
+
 
 def contact(request):
     if request.method == 'POST':
@@ -162,11 +169,12 @@ def contact(request):
             message = form.cleaned_data['message']
             from_email = form.cleaned_data['email']
             send_mail(subject, message, from_email, [settings.DEFAULT_FROM_EMAIL])
-            return redirect('success_contact')   
+            return redirect('success_contact')
     else:
         form = ContactForm()
 
     return render(request, 'contact.html', {'form': form})
+
 
 class TicketSitemap(Sitemap):
     changefreq = "daily"
@@ -178,18 +186,21 @@ class TicketSitemap(Sitemap):
     def lastmod(self, obj):
         return obj.updated_at
 
+
 def robots_txt(request):
     lines = [
         "User-Agent: *",
         "Disallow: /admin/",
         "Allow: /",
-        "Sitemap: https://nightspot-d83df74ddcea.herokuapp.com/sitemap.xml",  
+        "Sitemap: https://nightspot-d83df74ddcea.herokuapp.com/sitemap.xml",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
+
 
 def ticket_detail(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
     return render(request, 'ticket_detail.html', {'ticket': ticket})
+
 
 def newsletter_signup(request):
     if request.method == 'POST':
@@ -198,7 +209,7 @@ def newsletter_signup(request):
             email = form.cleaned_data['email']
 
             configuration = sib_api_v3_sdk.Configuration()
-            configuration.api_key['api-key'] = settings.BREVO_API_KEY  # Use API key from settings
+            configuration.api_key['api-key'] = settings.BREVO_API_KEY 
 
             api_instance = sib_api_v3_sdk.ContactsApi(sib_api_v3_sdk.ApiClient(configuration))
 
