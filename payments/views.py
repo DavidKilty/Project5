@@ -18,7 +18,7 @@ import logging
 import datetime
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
-stripe.api_version = '2023-08-16'
+stripe.api_version = '2024-06-20'
 
 def success_page(request):
     return render(request, 'success.html', {'message_type': 'payment'})
