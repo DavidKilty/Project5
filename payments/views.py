@@ -14,6 +14,8 @@ import requests
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from .forms import NewsletterSignupForm
+import logging
+
 
 
 def success_page(request):
@@ -99,6 +101,7 @@ def signup(request):
 
 @login_required
 def create_checkout_session(request):
+    logging.error(f"Using Stripe Secret Key: {settings.STRIPE_SECRET_KEY}")
     stripe.api_key = settings.STRIPE_SECRET_KEY
 
     ticket_id = request.GET.get('ticket_id')
