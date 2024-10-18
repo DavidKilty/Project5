@@ -56,6 +56,7 @@ def ticket_list(request):
     context = {
         'tickets': tickets,
         'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY
+
     }
     return render(request, 'ticket_list.html', context)
 
@@ -101,6 +102,7 @@ def signup(request):
 
 @login_required
 def create_checkout_session(request):
+    print(f"Stripe Secret Key in use: {settings.STRIPE_SECRET_KEY}")
     logging.error(f"Using Stripe Secret Key: {settings.STRIPE_SECRET_KEY}")
     stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -230,3 +232,4 @@ def newsletter_signup(request):
         form = NewsletterSignupForm()
 
     return render(request, 'newsletter_signup.html', {'form': form})
+
