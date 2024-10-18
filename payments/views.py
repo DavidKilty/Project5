@@ -15,8 +15,10 @@ import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from .forms import NewsletterSignupForm
 import logging
+import datetime
 
-
+stripe.api_key = settings.STRIPE_SECRET_KEY
+stripe.api_version = '2023-08-16'
 
 def success_page(request):
     return render(request, 'success.html', {'message_type': 'payment'})
@@ -56,7 +58,6 @@ def ticket_list(request):
     context = {
         'tickets': tickets,
         'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY
-
     }
     return render(request, 'ticket_list.html', context)
 
@@ -130,10 +131,23 @@ def create_checkout_session(request):
         cancel_url=request.build_absolute_uri('/cancel/'),
     )
 
+    logging.info(f"Session object: {session}")
+    print(session)
+    logging.info(f"Checkout session created: {session.id}")
+    session_created_at = datetime.datetime.fromtimestamp(session.created).strftime('%Y-%m-%d %H:%M:%S')
+    logging.info(f"Session created at: {session_created_at}")
+
+    if hasattr(session, 'expires_at'):
+        session_expires_at = datetime.datetime.fromtimestamp(session.expires_at).strftime('%Y-%m-%d %H:%M:%S')
+        logging.info(f"Session expires at: {session_expires_at}")
+    else:
+        logging.info("Session expiration time not available.")
+
     return JsonResponse({'id': session.id})
 
 
 def stripe_webhook(request):
+    logging.info("Received webhook")
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
@@ -143,12 +157,17 @@ def stripe_webhook(request):
             payload, sig_header, endpoint_secret
         )
     except ValueError as e:
+        logging.error("Invalid payload")
         return HttpResponse(status=400)
     except stripe.error.SignatureVerificationError as e:
+        logging.error("Invalid signature")
         return HttpResponse(status=400)
+
+    logging.info(f"Received event: {event['type']}")
 
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
+        logging.info(f"Session completed: {session}")
         ticket_id = session.get('client_reference_id')
         if ticket_id:
             ticket = Ticket.objects.get(id=ticket_id)
@@ -214,7 +233,7 @@ def newsletter_signup(request):
             email = form.cleaned_data['email']
 
             configuration = sib_api_v3_sdk.Configuration()
-            configuration.api_key['api-key'] = settings.BREVO_API_KEY 
+            configuration.api_key['api-key'] = settings.BREVO_API_KEY
 
             api_instance = sib_api_v3_sdk.ContactsApi(sib_api_v3_sdk.ApiClient(configuration))
 
@@ -232,4 +251,3 @@ def newsletter_signup(request):
         form = NewsletterSignupForm()
 
     return render(request, 'newsletter_signup.html', {'form': form})
-
