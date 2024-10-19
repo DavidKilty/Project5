@@ -1,6 +1,6 @@
 # Project5 - Night Spot 
 
-![contact image]
+![contact image](assets/homepage.png)
 
 ## Project Rationale and Purpose
 
@@ -42,15 +42,15 @@
 
 ##  E-commerce Business Model
 
-  Night Spot operates as a peer-to-peer ticket marketplace. Users can list tickets for sale or trade, while others can purchase or inquire about guest list spots. The platform charges a service fee per transaction (using Stripe) to generate revenue. By enabling ticket resale, the platform provides value for both buyers (finding tickets for sold-out events) and sellers (reselling tickets they no longer need).
+  Night Spot operates as a peer-to-peer ticket marketplace. Users can list tickets for sale or purchase, while others can purchase or inquire about guest list spots. The platform charges a service fee per transaction (using Stripe) to generate revenue. The platform provides value for both buyers, who find tickets for sold-out events, and sellers, who resell tickets they no longer need.
 
 ## How to Use
 
 ![contact image](assets/TicketList2.png)
 
- Night Spot is a platform for users to buy, sell, and trade tickets for nightlife events or nightclub guest list spots. Upon visiting the website, users can browse the list of available tickets. To purchase or trade, users must sign up for an account and log in. Once logged in, they can access the details of the tickets and proceed to checkout using Stripe for secure payments.
+ Night Spot is a platform for users to buy, sell, and buy tickets for nightlife events or nightclub guest list spots. Upon visiting the website, users can browse the list of available tickets. To purchase or sell tickets, users must create an account and log in.. Once logged in, they can access the details of the tickets and proceed to checkout using Stripe for secure payments.
 
- Users can also create their own listings to sell or trade tickets. Listings are managed through the user dashboard, where sellers can edit or remove their listings. The platform offers a smooth user experience for both buyers and sellers, ensuring secure transactions, notifications, and the ability to leave reviews and ratings after a successful purchase.
+ Users can also create their own listings to sell or buy tickets. Listings are managed through the user dashboard, where sellers can edit or remove their listings. The platform offers a smooth user experience for both buyers and sellers, ensuring secure transactions, notifications, and the ability to leave reviews and ratings after a successful purchase.
 
 ## My Goal
 
@@ -89,13 +89,18 @@
  I created a browsing feature where users can view all available tickets. Events are listed with key details such as event name, date, and ticket price. 
 
 ### Social Media 
- I wanted to make a FaceBook page for a social media presence, which builds trust with a customer base. It can also act as the communication channel with the customer, for customer service. Unfortunately, Facebook asks I wait up to 180 days before being allowed to make an account.
+ I wanted to make a Facebook page for a social media presence, which builds trust with a customer base. It can also act as the communication channel with the customer, for customer service. Unfortunately, Facebook asks I wait up to 180 days before being allowed to make an account.
 
 ![contact image](assets/Facebook2.png)
 
+So alternativel I created an Instagram account, that can fulfill what essentially the same needs. It is linked in the NavBar. 
+
+![contact image](assets/Insta.png)
+
+
 ## Operational Tracking 
 
- I utelised the operational tracking tool in GitHub to keep track of To-Do's and Tasks as they went. 
+ I utelized the operational tracking tool in GitHub to keep track of To-Do's and Tasks as they went. 
  https://github.com/users/DavidKilty/projects/3
 
 ## Data Models 
@@ -124,7 +129,7 @@ The below resources helped trouble shoot, integrate and enhance my code
  3. W3Schools 
  
 
-### Libraries Untelized 
+### Libraries Utilized
 
  Night Spot leverages several libraries and tools to provide its functionality. Django serves as the core backend framework, providing robust tools for handling user authentication, data models, and routing. For payments, the Stripe Python SDK is used to manage secure payment processing, while the Brevo (formerly Sendinblue) API handles the newsletter subscription feature.
 
