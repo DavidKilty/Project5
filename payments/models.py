@@ -1,7 +1,8 @@
-from django.urls import reverse
 from django.db import models
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
+
 
 class Ticket(models.Model):
     TICKET_TYPE_CHOICES = [
@@ -17,7 +18,6 @@ class Ticket(models.Model):
     is_sold = models.BooleanField(default=False)
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True)
-    
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
@@ -27,11 +27,13 @@ class Ticket(models.Model):
         return reverse('ticket_detail', args=[str(self.pk)])
 
     def check_availability(self):
-        if self.is_sold or self.event_date < timezone.now():
-            self.is_available = False
-        else:
-            self.is_available = True
+        """
+        Updates the availability status of the ticket.
+        A ticket is unavailable if it's sold or if the event date is in the past.
+        """
+        self.is_available = not (self.is_sold or self.event_date < timezone.now())
         self.save()
+
 
 class FAQ(models.Model):
     question = models.CharField(max_length=255)

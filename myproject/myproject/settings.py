@@ -1,8 +1,14 @@
-import environ
+"""
+Django settings for myproject.
+"""
+
 from pathlib import Path
 import os
+import environ
 import dj_database_url
 from django.contrib.messages import constants as messages
+import django_heroku
+
 
 env = environ.Env()
 environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
@@ -10,7 +16,7 @@ environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = env('SECRET_KEY')
-DEBUG = env.bool('DEBUG', default=False)
+DEBUG = True
 
 STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
@@ -28,7 +34,7 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net'
+    'https://8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',
 ]
 
 INSTALLED_APPS = [
@@ -54,6 +60,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'myproject.myproject.urls'
 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -63,18 +70,19 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
+                'django.contrib.auth.context_processors.auth',  
                 'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
 
+
 WSGI_APPLICATION = 'myproject.myproject.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.parse(
-        os.getenv('DATABASE_URL'),
+        os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3'),
         conn_max_age=600,
         ssl_require=True,
     )
@@ -118,13 +126,4 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-import django_heroku
 django_heroku.settings(locals())
-
-DATABASES = {
-    'default': dj_database_url.parse(
-        os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3'),
-        conn_max_age=600,
-        ssl_require=True,
-    )
-}
