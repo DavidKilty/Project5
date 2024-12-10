@@ -30,9 +30,6 @@ def success_contact(request):
     return render(request, 'success.html', {'message_type': 'contact'})
 
 
-def payment(request):
-    return render(request, 'payment.html')
-
 
 def home(request):
     return render(request, 'home.html')
@@ -55,11 +52,12 @@ def create_ticket(request):
 
 @login_required
 def ticket_list(request):
-    tickets = Ticket.objects.all()
+    tickets = Ticket.objects.filter(is_available=True)
     return render(request, 'ticket_list.html', {
         'tickets': tickets,
         'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY
     })
+
 
 
 @login_required
@@ -125,6 +123,10 @@ def create_checkout_session(request):
         success_url=request.build_absolute_uri('/success/'),
         cancel_url=request.build_absolute_uri('/cancel/'),
     )
+
+    ticket.is_available = False
+    ticket.save()
+
     return JsonResponse({'id': session.id})
 
 
@@ -134,9 +136,7 @@ def stripe_webhook(request):
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
     try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
-        )
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
     except ValueError:
         return HttpResponse(status=400)
     except stripe.error.SignatureVerificationError:
@@ -144,10 +144,13 @@ def stripe_webhook(request):
 
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-        ticket_id = session.get('client_reference_id')
-        if ticket_id:
-            ticket = Ticket.objects.get(id=ticket_id)
-            ticket.delete()
+        if session['payment_status'] == 'paid':  
+            ticket_id = session.get('client_reference_id')
+            if ticket_id:
+                ticket = Ticket.objects.get(id=ticket_id)
+                ticket.delete()
+        else:
+            logging.warning(f"Payment failed for session: {session['id']}")
 
     return HttpResponse(status=200)
 

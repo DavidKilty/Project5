@@ -30,11 +30,49 @@
     {% endfor %}
 </ul>
 
-<span id="stripe-publishable-key">pk_test_your_publishable_key</span>
+<span id="stripe-publishable-key" style="display: none;">{{ STRIPE_PUBLISHABLE_KEY }}</span>
 
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://js.stripe.com/v3/"></script>
-<script src="{% static 'payments/js/stripe_checkout.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const stripe = Stripe(document.getElementById("stripe-publishable-key").textContent);
+
+        document.querySelectorAll(".checkout-button").forEach((button) => {
+            button.addEventListener("click", function () {
+                const ticketId = this.getAttribute("data-ticket-id");
+
+                const loadingMessage = document.createElement("div");
+                loadingMessage.textContent = "Redirecting to checkout...";
+                loadingMessage.style.position = "fixed";
+                loadingMessage.style.top = "50%";
+                loadingMessage.style.left = "50%";
+                loadingMessage.style.transform = "translate(-50%, -50%)";
+                loadingMessage.style.backgroundColor = "white";
+                loadingMessage.style.padding = "20px";
+                loadingMessage.style.border = "1px solid black";
+                loadingMessage.style.zIndex = "9999";
+                document.body.appendChild(loadingMessage);               
+
+                fetch("/create-checkout-session/?ticket_id=" + ticketId, {
+                    method: "GET",
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.id) {
+                        stripe.redirectToCheckout({ sessionId: data.id });
+                    } else {
+                        console.error("Error:", data.error);
+                    }
+                })
+                .catch((error) => console.error("Error:", error));
+            });
+        });
+    });
+</script>
 {% endblock %}

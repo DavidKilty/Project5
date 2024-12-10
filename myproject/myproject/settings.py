@@ -34,8 +34,14 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',
+    'https://8000-davidkilty-project5-ovq0au8xcxt.ws.codeinstitute-ide.net',  
+    'https://8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',  
 ]
+
+
+CSRF_COOKIE_SECURE = False  
+SESSION_COOKIE_SECURE = False 
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',

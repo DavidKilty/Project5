@@ -1,0 +1,70 @@
+[MAIN]
+jobs=1
+persistent=yes
+load-plugins=
+py-version=3.12
+ignore=migrations,tests
+fail-under=8
+
+[BASIC]
+argument-naming-style=snake_case
+attr-naming-style=snake_case
+class-attribute-naming-style=any
+class-const-naming-style=UPPER_CASE
+class-naming-style=PascalCase
+const-naming-style=UPPER_CASE
+function-naming-style=snake_case
+method-naming-style=snake_case
+module-naming-style=snake_case
+variable-naming-style=snake_case
+good-names=i,j,k,ex,Run,_,qs,df,pk
+bad-names=foo,bar,baz
+
+[FORMAT]
+max-line-length=100
+indent-string='    '
+
+[MESSAGES CONTROL]
+disable=
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    too-few-public-methods,
+    too-many-ancestors,
+    invalid-name,
+    line-too-long,
+    trailing-whitespace,
+    wrong-import-order,
+    wrong-import-position,
+    bad-continuation,
+    unused-variable,
+    redefined-outer-name,
+    use-implicit-booleaness-not-comparison-to-zero
+
+[IMPORTS]
+known-standard-library=pathlib,os,sys,datetime
+known-third-party=django,stripe,requests,sib_api_v3_sdk
+known-local-folder=models,forms,views
+
+[REPORTS]
+reports=no
+score=yes
+
+[TYPECHECK]
+ignored-classes=optparse.Values,thread._local,_thread._local,argparse.Namespace
+
+[VARIABLES]
+dummy-variables-rgx=_+$|dummy|^ignored_|^unused_
+
+[DESIGN]
+max-args=5
+max-locals=15
+max-returns=6
+max-branches=12
+max-statements=50
+max-nested-blocks=5
+min-public-methods=2
+max-parents=7
+
+[EXCEPTIONS]
+overgeneral-exceptions=builtins.Exception
