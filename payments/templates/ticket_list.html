@@ -7,11 +7,12 @@
 {% block content %}
 <h1>Available Tickets</h1>
 
+{% if tickets %}
 <ul class="list-group">
     {% for ticket in tickets %}
         <li class="list-group-item">
             <strong>Event:</strong> {{ ticket.event_name }} | 
-            <strong>Date:</strong> {{ ticket.event_date }} | 
+            <strong>Date:</strong> {{ ticket.event_date|date:"F j, Y, g:i a" }} | 
             <strong>Price:</strong> €{{ ticket.ticket_price }}
 
             <div class="float-end">
@@ -20,15 +21,23 @@
                         <a href="{% url 'edit_ticket' ticket.pk %}" class="btn btn-warning btn-sm">Edit</a> 
                         <a href="{% url 'delete_ticket' ticket.pk %}" class="btn btn-danger btn-sm">Delete</a>
                     {% elif ticket.is_available %}
-                        <button type="button" class="btn btn-success btn-sm checkout-button" data-ticket-id="{{ ticket.id }}">Buy</button>
+                        <button type="button" 
+                                class="btn btn-success btn-sm checkout-button" 
+                                data-ticket-id="{{ ticket.id }}" 
+                                data-ticket-status="{% if ticket.is_available %}available{% else %}sold{% endif %}">
+                            Buy
+                        </button>
                     {% endif %}
+                {% else %}
+                    <p class="text-muted">Please log in to purchase tickets.</p>
                 {% endif %}
             </div>
         </li>
-    {% empty %}
-        <li class="list-group-item">No tickets available.</li>
     {% endfor %}
 </ul>
+{% else %}
+<p class="text-center text-muted">No tickets are currently available. Please check back later!</p>
+{% endif %}
 
 <span id="stripe-publishable-key" style="display: none;">{{ STRIPE_PUBLISHABLE_KEY }}</span>
 
@@ -54,9 +63,9 @@
                 loadingMessage.style.padding = "20px";
                 loadingMessage.style.border = "1px solid black";
                 loadingMessage.style.zIndex = "9999";
-                document.body.appendChild(loadingMessage);               
+                document.body.appendChild(loadingMessage);
 
-                fetch("/create-checkout-session/?ticket_id=" + ticketId, {
+                fetch(`/create-checkout-session/?ticket_id=${ticketId}`, {
                     method: "GET",
                     headers: {
                         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
@@ -70,7 +79,10 @@
                         console.error("Error:", data.error);
                     }
                 })
-                .catch((error) => console.error("Error:", error));
+                .catch((error) => console.error("Error:", error))
+                .finally(() => {
+                    document.body.removeChild(loadingMessage); // Clean up loading message
+                });
             });
         });
     });

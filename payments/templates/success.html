@@ -3,15 +3,20 @@
 {% block title %}Success{% endblock %}
  
 {% block content %}
-  <h1>Success!</h1>
+    <div class="container mt-5 text-center">
+        <h1>Success!</h1>
   
-  {% if message_type == 'payment' %}
-    <p>Your payment was successful. Thank you for your purchase!</p>
-  {% elif message_type == 'contact' %}
-    <p>Your message has been sent successfully. We will get back to you soon.</p>
-  {% else %}
-    <p>Your request was processed successfully.</p>
-  {% endif %}
+        {% if message_type == 'payment' %}
+            <p>Your payment was successful. Thank you for your purchase!</p>
+        {% elif message_type == 'contact' %}
+            <p>Your message has been sent successfully. We will get back to you soon.</p>
+        {% else %}
+            <p>Your request was processed successfully.</p>
+        {% endif %}
   
-  <a href="{% url 'home' %}" class="btn btn-primary">Go to Home</a>
+        <div class="mt-4">
+            <a href="{% url 'ticket_list' %}" class="btn btn-primary">View Available Tickets</a>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Return to Home</a>
+        </div>
+    </div>
 {% endblock %}

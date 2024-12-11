@@ -3,6 +3,12 @@
 {% block title %}Payment Cancelled{% endblock %}
 
 {% block content %}
-    <h2>Payment Cancelled</h2>
-    <p>You cancelled your payment. Please try again if you wish to complete the purchase.</p>
+    <div class="container mt-5 text-center">
+        <h2>Payment Cancelled</h2>
+        <p>Your payment was not completed. You can try again or explore other options below.</p>
+        <div class="mt-4">
+            <a href="{% url 'ticket_list' %}" class="btn btn-primary">Return to Available Tickets</a>
+            <a href="{% url 'faq_list' %}" class="btn btn-secondary">Visit FAQ</a>
+        </div>
+    </div>
 {% endblock %}

@@ -144,23 +144,21 @@ def stripe_webhook(request):
 
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-
-        logging.info(f"Checkout session: {session}")
-        payment_status = session.get('payment_status')
         ticket_id = session.get('client_reference_id')
+        payment_status = session.get('payment_status')
 
-        if payment_status == 'paid':
-            logging.info(f"Payment successful for session: {session['id']}, ticket_id: {ticket_id}")
-            if ticket_id:
-                try:
-                    ticket = Ticket.objects.get(id=ticket_id)
-                    ticket.is_available = False  
-                    ticket.save()
-                    logging.info(f"Ticket {ticket_id} marked as unavailable.")
-                except Ticket.DoesNotExist:
-                    logging.error(f"Ticket with ID {ticket_id} does not exist.")
-        else:
-            logging.warning(f"Payment failed for session: {session['id']}")
+        logging.info(f"Session ID: {session['id']}, Payment Status: {payment_status}, Ticket ID: {ticket_id}")
+
+        if payment_status == 'paid' and ticket_id:
+            try:
+                ticket = Ticket.objects.get(id=ticket_id)
+                logging.info(f"Ticket {ticket_id} retrieved successfully.")
+                ticket.is_sold = True
+                ticket.is_available = False
+                ticket.save()
+                logging.info(f"Ticket {ticket_id} successfully marked as sold.")
+            except Ticket.DoesNotExist:
+                logging.error(f"Ticket with ID {ticket_id} does not exist.")
 
     return HttpResponse(status=200)
 
