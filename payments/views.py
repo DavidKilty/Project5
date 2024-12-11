@@ -30,7 +30,6 @@ def success_contact(request):
     return render(request, 'success.html', {'message_type': 'contact'})
 
 
-
 def home(request):
     return render(request, 'home.html')
 
@@ -52,12 +51,11 @@ def create_ticket(request):
 
 @login_required
 def ticket_list(request):
-    tickets = Ticket.objects.filter(is_available=True)
+    tickets = Ticket.objects.filter(is_available=True) 
     return render(request, 'ticket_list.html', {
         'tickets': tickets,
         'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY
     })
-
 
 
 @login_required
@@ -122,10 +120,8 @@ def create_checkout_session(request):
         mode='payment',
         success_url=request.build_absolute_uri('/success/'),
         cancel_url=request.build_absolute_uri('/cancel/'),
+        client_reference_id=ticket.id, 
     )
-
-    ticket.is_available = False
-    ticket.save()
 
     return JsonResponse({'id': session.id})
 
@@ -137,18 +133,32 @@ def stripe_webhook(request):
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-    except ValueError:
+    except ValueError as e:
+        logging.error(f"Webhook Error: Invalid payload - {e}")
         return HttpResponse(status=400)
-    except stripe.error.SignatureVerificationError:
+    except stripe.error.SignatureVerificationError as e:
+        logging.error(f"Webhook Error: Signature verification failed - {e}")
         return HttpResponse(status=400)
+
+    logging.info(f"Received event: {event['type']}")
 
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-        if session['payment_status'] == 'paid':  
-            ticket_id = session.get('client_reference_id')
+
+        logging.info(f"Checkout session: {session}")
+        payment_status = session.get('payment_status')
+        ticket_id = session.get('client_reference_id')
+
+        if payment_status == 'paid':
+            logging.info(f"Payment successful for session: {session['id']}, ticket_id: {ticket_id}")
             if ticket_id:
-                ticket = Ticket.objects.get(id=ticket_id)
-                ticket.delete()
+                try:
+                    ticket = Ticket.objects.get(id=ticket_id)
+                    ticket.is_available = False  
+                    ticket.save()
+                    logging.info(f"Ticket {ticket_id} marked as unavailable.")
+                except Ticket.DoesNotExist:
+                    logging.error(f"Ticket with ID {ticket_id} does not exist.")
         else:
             logging.warning(f"Payment failed for session: {session['id']}")
 
@@ -183,7 +193,7 @@ class TicketSitemap(Sitemap):
     priority = 0.8
 
     def items(self):
-        return Ticket.objects.all()
+        return Ticket.objects.filter(is_available=True)
 
     def lastmod(self, obj):
         return obj.updated_at
