@@ -49,9 +49,34 @@ def create_ticket(request):
     return render(request, 'create_ticket.html', {'form': form})
 
 
+def test_webhook(request):
+    """
+    Simulates a webhook event for testing purposes.
+    """
+    payload = {
+        "id": "evt_test_webhook",
+        "type": "checkout.session.completed",
+        "data": {
+            "object": {
+                "id": "cs_test_a1OeVS18CDjsE8vk4bKKBW6auChDjqN6ZRIO2FCDtCjoshAaFpBr442p2M",
+                "client_reference_id": "8",
+                "payment_status": "paid"
+            }
+        }
+    }
+
+    from django.test import RequestFactory
+    factory = RequestFactory()
+    test_request = factory.post('/webhook/', payload, content_type='application/json')
+    test_request.META['HTTP_STRIPE_SIGNATURE'] = 'test_signature'
+
+    response = stripe_webhook(test_request)
+    return JsonResponse({"response": response.status_code})
+
+
 @login_required
 def ticket_list(request):
-    tickets = Ticket.objects.filter(is_available=True) 
+    tickets = Ticket.objects.filter(is_available=True)
     return render(request, 'ticket_list.html', {
         'tickets': tickets,
         'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY
@@ -120,15 +145,18 @@ def create_checkout_session(request):
         mode='payment',
         success_url=request.build_absolute_uri('/success/'),
         cancel_url=request.build_absolute_uri('/cancel/'),
-        client_reference_id=ticket.id, 
+        client_reference_id=ticket.id,
     )
 
     return JsonResponse({'id': session.id})
 
 
 def stripe_webhook(request):
+    """
+    Handles Stripe webhook events for processing payments.
+    """
     payload = request.body
-    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
     try:
@@ -145,14 +173,10 @@ def stripe_webhook(request):
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         ticket_id = session.get('client_reference_id')
-        payment_status = session.get('payment_status')
 
-        logging.info(f"Session ID: {session['id']}, Payment Status: {payment_status}, Ticket ID: {ticket_id}")
-
-        if payment_status == 'paid' and ticket_id:
+        if session.get('payment_status') == 'paid' and ticket_id:
             try:
                 ticket = Ticket.objects.get(id=ticket_id)
-                logging.info(f"Ticket {ticket_id} retrieved successfully.")
                 ticket.is_sold = True
                 ticket.is_available = False
                 ticket.save()

@@ -16,4 +16,5 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('newsletter-signup/', views.newsletter_signup, name='newsletter_signup'),
     path('webhook/', views.stripe_webhook, name='stripe_webhook'),  
+    path('test-webhook/', views.test_webhook, name='test_webhook'),
 ]
