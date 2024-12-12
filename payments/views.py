@@ -10,6 +10,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.sitemaps import Sitemap
+from django.core.mail import send_mail
+
 
 import stripe
 import sib_api_v3_sdk
@@ -152,9 +154,6 @@ def create_checkout_session(request):
 
 
 def stripe_webhook(request):
-    """
-    Handles Stripe webhook events for processing payments.
-    """
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
@@ -173,18 +172,30 @@ def stripe_webhook(request):
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         ticket_id = session.get('client_reference_id')
+        payment_status = session.get('payment_status')
 
-        if session.get('payment_status') == 'paid' and ticket_id:
+        logging.info(f"Processing ticket ID: {ticket_id}, Payment Status: {payment_status}")
+
+        if payment_status == 'paid' and ticket_id:
             try:
                 ticket = Ticket.objects.get(id=ticket_id)
                 ticket.is_sold = True
                 ticket.is_available = False
                 ticket.save()
-                logging.info(f"Ticket {ticket_id} successfully marked as sold.")
+
+                subject = f"Ticket Purchased: {ticket.event_name}"
+                message = f"Dear {ticket.seller},\n\nYour ticket for '{ticket.event_name}' has been purchased successfully.\n\nThank you,\nNight Spot Team"
+                recipient_list = [ticket.seller.email]  # Assuming seller has an email field
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
+
+                logging.info(f"Ticket {ticket_id} marked as sold and email sent to {ticket.seller.email}.")
             except Ticket.DoesNotExist:
                 logging.error(f"Ticket with ID {ticket_id} does not exist.")
+            except Exception as e:
+                logging.error(f"Error sending email: {e}")
 
     return HttpResponse(status=200)
+
 
 
 def faq_list(request):
