@@ -1,17 +1,11 @@
 import logging
-import datetime
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
-from django.utils import timezone
 from django.contrib.sitemaps import Sitemap
-from django.core.mail import send_mail
-
 
 import stripe
 import sib_api_v3_sdk
@@ -19,6 +13,7 @@ from sib_api_v3_sdk.rest import ApiException
 
 from .models import Ticket, FAQ
 from .forms import TicketForm, ContactForm, NewsletterSignupForm
+
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 stripe.api_version = '2024-06-20'
@@ -116,7 +111,11 @@ def signup(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            subject = "Welcome to Night Spot!"
+            message = f"Dear {user.username},\n\nThank you for signing up at Night Spot. We're excited to have you on board.\n\nBest regards,\nNight Spot Team"
+            recipient_list = [user.email]
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
             return redirect('login')
     else:
         form = UserCreationForm()
@@ -184,8 +183,12 @@ def stripe_webhook(request):
                 ticket.save()
 
                 subject = f"Ticket Purchased: {ticket.event_name}"
-                message = f"Dear {ticket.seller},\n\nYour ticket for '{ticket.event_name}' has been purchased successfully.\n\nThank you,\nNight Spot Team"
-                recipient_list = [ticket.seller.email]  # Assuming seller has an email field
+                message = (
+                    f"Dear {ticket.seller},\n\n"
+                    f"Your ticket for '{ticket.event_name}' has been purchased successfully.\n\n"
+                    "Thank you,\nNight Spot Team"
+                )
+                recipient_list = [ticket.seller.email]  
                 send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
 
                 logging.info(f"Ticket {ticket_id} marked as sold and email sent to {ticket.seller.email}.")
@@ -195,7 +198,6 @@ def stripe_webhook(request):
                 logging.error(f"Error sending email: {e}")
 
     return HttpResponse(status=200)
-
 
 
 def faq_list(request):
@@ -214,7 +216,14 @@ def contact(request):
             subject = form.cleaned_data['subject']
             message = form.cleaned_data['message']
             from_email = form.cleaned_data['email']
-            send_mail(subject, message, from_email, [settings.DEFAULT_FROM_EMAIL])
+
+            try:
+                send_mail(subject, message, from_email, [settings.DEFAULT_FROM_EMAIL])
+                messages.success(request, "Your message has been sent successfully.")
+            except Exception as e:
+                logging.error(f"Error sending contact email: {e}")
+                messages.error(request, "An error occurred while sending your message.")
+
             return redirect('success_contact')
     else:
         form = ContactForm()
@@ -262,8 +271,22 @@ def newsletter_signup(request):
             try:
                 api_instance.create_contact(contact)
                 messages.success(request, "You've successfully subscribed to the newsletter.")
-            except ApiException:
-                messages.error(request, "An error occurred while trying to subscribe.")
+
+                subject = "Newsletter Subscription Confirmation"
+                message = (
+                    "Hello,\n\n"
+                    "Thank you for subscribing to the Night Spot newsletter. "
+                    "Stay tuned for the latest updates and events!\n\n"
+                    "Best regards,\nNight Spot Team"
+                )
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+
+            except ApiException as e:
+                logging.error(f"Brevo API error: {e}")
+                messages.error(request, "An error occurred while adding you to the newsletter.")
+            except Exception as e:
+                logging.error(f"Email sending error: {e}")
+                messages.error(request, "An error occurred while sending the confirmation email.")
 
             return redirect('newsletter_signup')
     else:
