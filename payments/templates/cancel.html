@@ -3,12 +3,13 @@
 {% block title %}Payment Cancelled{% endblock %}
 
 {% block content %}
-    <div class="container mt-5 text-center">
-        <h2>Payment Cancelled</h2>
-        <p>Your payment was not completed. You can try again or explore other options below.</p>
-        <div class="mt-4">
-            <a href="{% url 'ticket_list' %}" class="btn btn-primary">Return to Available Tickets</a>
-            <a href="{% url 'faq_list' %}" class="btn btn-secondary">Visit FAQ</a>
-        </div>
+<div class="container mt-5 text-center" role="alert" aria-live="polite">
+    <h1 style="color: #721c24;">❌ Payment Cancelled</h1>
+    <p>We noticed your payment was not completed. Don’t worry, you can try again or explore other options below.</p>
+
+    <div class="mt-4">
+        <a href="{% url 'ticket_list' %}" class="btn btn-primary" aria-label="Return to Available Tickets">Return to Tickets</a>
+        <a href="{% url 'faq_list' %}" class="btn btn-secondary" aria-label="Visit FAQ for More Information">Visit FAQ</a>
     </div>
+</div>
 {% endblock %}

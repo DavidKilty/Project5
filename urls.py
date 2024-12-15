@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
 from payments import views
 
-urlpatterns = [
+urlpatterns = [ 
     path('admin/', admin.site.urls),
     path('', lambda request: redirect('payment/', permanent=False)),
     path('payment/', include('payments.urls')),

@@ -18,6 +18,9 @@ from .forms import TicketForm, ContactForm, NewsletterSignupForm
 stripe.api_key = settings.STRIPE_SECRET_KEY
 stripe.api_version = '2024-06-20'
 
+def custom_404_view(request, exception=None):
+    """Custom 404 error page."""
+    return render(request, '404.html', status=404)
 
 def success_page(request):
     return render(request, 'success.html', {'message_type': 'payment'})

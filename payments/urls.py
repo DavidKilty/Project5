@@ -1,6 +1,6 @@
-from . import views
 from django.urls import path
- 
+from payments import views
+
 urlpatterns = [
     path('create-ticket/', views.create_ticket, name='create_ticket'),
     path('tickets/', views.ticket_list, name='ticket_list'),
@@ -15,6 +15,6 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('signup/', views.signup, name='signup'),
     path('newsletter-signup/', views.newsletter_signup, name='newsletter_signup'),
-    path('webhook/', views.stripe_webhook, name='stripe_webhook'),  
+    path('webhook/', views.stripe_webhook, name='stripe_webhook'),
     path('test-webhook/', views.test_webhook, name='test_webhook'),
 ]
