@@ -4,7 +4,7 @@ from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
-from django.contrib import messages
+from django.contrib import messages 
 from django.contrib.sitemaps import Sitemap
 
 import stripe
@@ -182,7 +182,7 @@ def stripe_webhook(request):
             try:
                 ticket = Ticket.objects.get(id=ticket_id)
                 ticket.is_sold = True
-                ticket.is_available = False
+                #ticket.is_available = False
                 ticket.save()
 
                 subject = f"Ticket Purchased: {ticket.event_name}"

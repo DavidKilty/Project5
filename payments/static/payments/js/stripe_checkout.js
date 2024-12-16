@@ -4,9 +4,8 @@ document.querySelectorAll(".checkout-button").forEach(button => {
 
         console.log("Button clicked for ticket ID: ", ticketId);
 
-        console.log(document.getElementById('stripe-publishable-key').textContent);
+        console.log("Stripe Publishable Key:", document.getElementById('stripe-publishable-key').textContent);
 
-        
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
         fetch(`/create-checkout-session/?ticket_id=${ticketId}`, {
@@ -20,6 +19,9 @@ document.querySelectorAll(".checkout-button").forEach(button => {
             return response.json();
         })
         .then(function (data) {
+
+            console.log("Session Data:", data);
+
             if (data.id) {
                 const stripe = Stripe(document.getElementById('stripe-publishable-key').textContent);
                 stripe.redirectToCheckout({ sessionId: data.id });
