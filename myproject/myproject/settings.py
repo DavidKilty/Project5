@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     '8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',
     'nightspot.herokuapp.com',
     'nightspot.onrender.com',
+    'https://nightspot-d83df74ddcea.herokuapp.com/stripe-webhook/', 
 ]
 
 CSRF_TRUSTED_ORIGINS = [
