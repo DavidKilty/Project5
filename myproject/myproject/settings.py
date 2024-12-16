@@ -1,7 +1,7 @@
 """
 Django settings for myproject.
 """
-
+ 
 from pathlib import Path
 import os
 import environ
