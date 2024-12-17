@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils import timezone
 from .models import Ticket, FAQ
+from .models import Testimonial
 
 
 class TicketForm(forms.ModelForm):
@@ -64,3 +65,12 @@ class NewsletterSignupForm(forms.Form):
             attrs={'class': 'form-control', 'placeholder': 'Enter your email'}
         )
     )
+
+class TestimonialForm(forms.ModelForm):
+    class Meta:
+        model = Testimonial
+        fields = ["title", "content"]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control", "placeholder": "Short headline"}),
+            "content": forms.Textarea(attrs={"class": "form-control", "rows": 4, "placeholder": "Your testimonial here..."}),
+        }

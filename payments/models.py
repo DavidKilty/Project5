@@ -2,6 +2,11 @@ from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
+import uuid
+
+
+def generate_unique_code():
+    return uuid.uuid4().hex[:10]
 
 
 class Ticket(models.Model):
@@ -19,6 +24,8 @@ class Ticket(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True)
     is_available = models.BooleanField(default=True)
+    unique_code = models.CharField(max_length=10, unique=True, default=generate_unique_code)
+    buyer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchased_tickets')
 
     def __str__(self):
         return f"{self.event_name} - {self.get_ticket_type_display()}"
@@ -34,12 +41,6 @@ class Ticket(models.Model):
         self.is_available = not (self.is_sold or self.event_date < timezone.now())
         self.save()
 
-
-class FAQ(models.Model):
-    question = models.CharField(max_length=255)
-    answer = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.question
+    def save(self, *args, **kwargs):
+        self.check_availability()
+        super().save(*args, **kwargs)

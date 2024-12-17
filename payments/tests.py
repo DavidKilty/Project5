@@ -2,10 +2,13 @@
 Test suite for the Ticket model in the payments app.
 """
 
-from datetime import datetime
+from datetime import delta  
 from django.contrib.auth.models import User
 from django.test import TestCase
 from payments.models import Ticket
+from django.core.exceptions import ValidationError
+from django.utils.timezone import now
+from django.core.management.base import BaseCommand
 
 
 class TicketModelTest(TestCase):
@@ -29,3 +32,24 @@ class TicketModelTest(TestCase):
             seller=user
         )
         self.assertEqual(ticket.event_name, 'Test Event')
+
+class TicketForm(forms.ModelForm):
+    class Meta:
+        model = Ticket
+        fields = ['event_name', 'event_date', 'ticket_price']
+
+    def clean_event_date(self):
+        event_date = self.cleaned_data['event_date']
+        if event_date > timezone.now() + timedelta(days=60): 
+            raise ValidationError("Tickets cannot be listed for events more than 2 months in advance.")
+        return event_date
+
+class Command(BaseCommand):
+    help = 'Delete tickets one week past their event date'
+
+    def handle(self, *args, **kwargs):
+        week_ago = now() - timedelta(days=7)
+        expired_tickets = Ticket.objects.filter(event_date__lt=week_ago)
+        count = expired_tickets.count()
+        expired_tickets.delete()
+        self.stdout.write(f"{count} expired tickets deleted.")

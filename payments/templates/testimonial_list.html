@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Testimonials{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>What Our Users Say</h2>
+    {% if testimonials %}
+        <ul class="list-group">
+            {% for testimonial in testimonials %}
+                <li class="list-group-item">
+                    <h4>{{ testimonial.title }}</h4>
+                    <p>{{ testimonial.content }}</p>
+                    <small>— {{ testimonial.user.username }}, {{ testimonial.date_posted|date:"F j, Y" }}</small>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No testimonials available at the moment. Be the first to share your experience!</p>
+    {% endif %}
+</div>
+{% endblock %}

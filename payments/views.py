@@ -3,9 +3,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.utils import timezone
 from django.conf import settings
 from django.contrib import messages 
 from django.contrib.sitemaps import Sitemap
+from .models import Testimonial
+from .forms import TestimonialForm
 
 import stripe
 import sib_api_v3_sdk
@@ -76,7 +79,11 @@ def test_webhook(request):
 
 @login_required
 def ticket_list(request):
-    tickets = Ticket.objects.filter(is_available=True)
+    """Display tickets not created by the logged-in user."""
+    if request.user.is_authenticated:
+        tickets = Ticket.objects.filter(is_available=True).exclude(seller=request.user)
+    else:
+        tickets = Ticket.objects.filter(is_available=True)
     return render(request, 'ticket_list.html', {
         'tickets': tickets,
         'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY
@@ -84,7 +91,17 @@ def ticket_list(request):
 
 
 @login_required
+def user_ticket_list(request):
+    """Display tickets created by the logged-in user."""
+    user_tickets = Ticket.objects.filter(seller=request.user)
+    return render(request, 'user_ticket_list.html', {'tickets': user_tickets})
+
+@login_required
 def edit_ticket(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk, seller=request.user)
+    if ticket.buyer: 
+        messages.error(request, "You cannot edit a ticket that has been sold.")
+        return redirect('user_ticket_list')
     ticket = get_object_or_404(Ticket, pk=pk)
     if request.user != ticket.seller:
         return redirect('ticket_list')
@@ -154,6 +171,32 @@ def create_checkout_session(request):
 
     return JsonResponse({'id': session.id})
 
+@login_required
+def submit_testimonial(request):
+    """View to handle testimonial submission."""
+    if request.method == "POST":
+        form = TestimonialForm(request.POST)
+        if form.is_valid():
+            testimonial = form.save(commit=False)
+            testimonial.user = request.user
+            testimonial.save()
+            messages.success(request, "Your testimonial has been submitted and is pending approval.")
+            return redirect("testimonial_list")
+    else:
+        form = TestimonialForm()
+    return render(request, "submit_testimonial.html", {"form": form})
+
+def testimonial_list(request):
+    """View to display approved testimonials."""
+    testimonials = Testimonial.objects.filter(approved=True)
+    return render(request, "testimonial_list.html", {"testimonials": testimonials})
+
+
+@login_required
+def bought_tickets(request):
+    tickets = Ticket.objects.filter(buyer=request.user)
+    return render(request, 'bought_tickets.html', {'tickets': tickets})
+
 
 def stripe_webhook(request):
     payload = request.body
@@ -182,7 +225,6 @@ def stripe_webhook(request):
             try:
                 ticket = Ticket.objects.get(id=ticket_id)
                 ticket.is_sold = True
-                #ticket.is_available = False
                 ticket.save()
 
                 subject = f"Ticket Purchased: {ticket.event_name}"
