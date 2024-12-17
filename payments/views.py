@@ -147,7 +147,8 @@ def create_checkout_session(request):
     ticket_id = request.GET.get('ticket_id')
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
-    if ticket.seller == request.user:
+    if ticket.seller == request.user or ticket.is_sold:
+        messages.error(request, "You cannot purchase your own ticket or a sold ticket.")
         return redirect('ticket_list')
 
     session = stripe.checkout.Session.create(
@@ -170,6 +171,7 @@ def create_checkout_session(request):
     )
 
     return JsonResponse({'id': session.id})
+
 
 @login_required
 def submit_testimonial(request):
@@ -197,7 +199,7 @@ def bought_tickets(request):
     tickets = Ticket.objects.filter(buyer=request.user)
     return render(request, 'bought_tickets.html', {'tickets': tickets})
 
-
+@login_required
 def stripe_webhook(request):
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
@@ -212,37 +214,34 @@ def stripe_webhook(request):
         logging.error(f"Webhook Error: Signature verification failed - {e}")
         return HttpResponse(status=400)
 
-    logging.info(f"Received event: {event['type']}")
-
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         ticket_id = session.get('client_reference_id')
         payment_status = session.get('payment_status')
 
-        logging.info(f"Processing ticket ID: {ticket_id}, Payment Status: {payment_status}")
-
         if payment_status == 'paid' and ticket_id:
             try:
                 ticket = Ticket.objects.get(id=ticket_id)
                 ticket.is_sold = True
+                ticket.buyer = request.user
                 ticket.save()
 
                 subject = f"Ticket Purchased: {ticket.event_name}"
                 message = (
-                    f"Dear {ticket.seller},\n\n"
-                    f"Your ticket for '{ticket.event_name}' has been purchased successfully.\n\n"
+                    f"Dear {ticket.seller.username},\n\n"
+                    f"Your ticket for '{ticket.event_name}' has been purchased by {request.user.username}.\n\n"
                     "Thank you,\nNight Spot Team"
                 )
-                recipient_list = [ticket.seller.email]  
+                recipient_list = [ticket.seller.email]
                 send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
-
-                logging.info(f"Ticket {ticket_id} marked as sold and email sent to {ticket.seller.email}.")
+                logging.info(f"Ticket {ticket_id} marked as sold and email sent.")
             except Ticket.DoesNotExist:
                 logging.error(f"Ticket with ID {ticket_id} does not exist.")
             except Exception as e:
-                logging.error(f"Error sending email: {e}")
+                logging.error(f"Error processing ticket purchase: {e}")
 
     return HttpResponse(status=200)
+
 
 
 def faq_list(request):
