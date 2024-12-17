@@ -5,10 +5,6 @@ from django.utils import timezone
 import uuid
 
 
-def generate_unique_code():
-    return uuid.uuid4().hex[:10]
-
-
 class Ticket(models.Model):
     TICKET_TYPE_CHOICES = [
         ('guest_list', 'Guest List (Free entry, front of queue)'),
@@ -24,7 +20,7 @@ class Ticket(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True)
     is_available = models.BooleanField(default=True)
-    unique_code = models.CharField(max_length=10, unique=True, default=generate_unique_code)
+    unique_code = models.CharField(max_length=10, default=uuid.uuid4().hex[:10], blank=True, null=True)
     buyer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchased_tickets')
 
     def __str__(self):
@@ -41,6 +37,26 @@ class Ticket(models.Model):
         self.is_available = not (self.is_sold or self.event_date < timezone.now())
         self.save()
 
-    def save(self, *args, **kwargs):
-        self.check_availability()
-        super().save(*args, **kwargs)
+
+class FAQ(models.Model):
+    question = models.CharField(max_length=255)
+    answer = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.question
+
+
+class Testimonial(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="testimonials")
+    title = models.CharField(max_length=255, help_text="Short title or headline for the testimonial.")
+    content = models.TextField(help_text="The main testimonial content.")
+    date_posted = models.DateTimeField(auto_now_add=True)
+    approved = models.BooleanField(default=False, help_text="Admin approval for display.")
+
+    class Meta:
+        ordering = ["-date_posted"]
+
+    def __str__(self):
+        return f"Testimonial by {self.user.username} - {self.title}"
