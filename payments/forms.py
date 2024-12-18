@@ -78,5 +78,6 @@ class TestimonialForm(forms.ModelForm):
             (attrs={"class": "form-control", "placeholder": "Short headline"}),
             "content":
             forms.Textarea(attrs={"class": "form-control", "rows":
-                        4, "placeholder": "Your testimonial her..."}),
+                                  4, "placeholder":
+                                      "Your testimonial her..."}),
                   }
