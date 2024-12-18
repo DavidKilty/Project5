@@ -108,11 +108,10 @@ def user_ticket_list(request):
 def edit_ticket(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk, seller=request.user)
     if ticket.buyer:
-        messages.error(request, "You cannot edit a ticket that has been sold.")
+        messages.error(
+            request, "You cannot edit a ticket that has been sold."
+        )
         return redirect('user_ticket_list')
-    ticket = get_object_or_404(Ticket, pk=pk)
-    if request.user != ticket.seller:
-        return redirect('ticket_list')
     if request.method == 'POST':
         form = TicketForm(request.POST, instance=ticket)
         if form.is_valid():

@@ -44,6 +44,17 @@ class Ticket(models.Model):
         related_name='purchased_tickets'
     )
 
+    def check_availability(self):
+        """
+        Updates the availability status of the ticket.
+        A ticket is unavailable if it's sold or if the event
+        date is in the past.
+        """
+        self.is_available = not (
+            self.is_sold or self.event_date < timezone.now()
+        )
+        self.save()
+
 
 class FAQ(models.Model):
     question = models.CharField(max_length=255)
