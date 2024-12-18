@@ -9,10 +9,8 @@ import dj_database_url
 from django.contrib.messages import constants as messages
 import django_heroku
 
-
 env = environ.Env()
-environ.Env.read_env
-(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
+environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

@@ -320,42 +320,62 @@ def ticket_detail(request, pk):
 
 
 def newsletter_signup(request):
+    """Handles newsletter signup and logs key events for debugging."""
     if request.method == 'POST':
+        logging.info("Newsletter signup form submitted.")
+
         form = NewsletterSignupForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
+            logging.info(f"Valid email received: {email}")
 
             configuration = sib_api_v3_sdk.Configuration()
             configuration.api_key['api-key'] = settings.BREVO_API_KEY
+            logging.info("Brevo API configuration initialized.")
 
-            api_instance = sib_api_v3_sdk.ContactsApi
-            (sib_api_v3_sdk.ApiClient(configuration))
+            api_instance = sib_api_v3_sdk.ContactsApi(
+                sib_api_v3_sdk.ApiClient(configuration)
+            )
             contact = sib_api_v3_sdk.CreateContact(email=email)
 
-        try:
-            api_instance.create_contact(contact)
-            messages.success(request, "Successfully subscribed.")
+            try:
+                response = api_instance.create_contact(contact)
+                logging.info(f"Brevo API response: {response}")
 
-            subject = "Newsletter Subscription Confirmation"
-            message = (
+                messages.success(request, "Successfully subscribed.")
+                logging.info("User successfully subscribed to the newsletter.")
+
+                subject = "Newsletter Subscription Confirmation"
+                message = (
                     "Hello,\n\n"
-                    "Thank you for subscribing to the Night Spot newsletter. "
-                    "Stay tuned for the latest updates and events!\n\n"
+                    "Thank you for subscribing. "
+                    "Stay tuned for the latest news!\n\n"
                     "Best regards,\nNight Spot Team"
                 )
-            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email]
+                )
+                logging.info("Confirmation email sent successfully.")
 
-        except ApiException as e:
-            logging.error(f"Brevo API error: {e}")
-            messages.error(request, "An error occurred in signup.")
-
-        except Exception as e:
-            logging.error(f"Email sending error: {e}")
-            messages.error
-            (request,
-             "An error occurred while sending the confirmation email.")
+            except ApiException as e:
+                logging.error(f"Brevo API error: {e}")
+                messages.error(request, "An error occurred in signup.")
+            except Exception as e:
+                logging.error(f"Email sending error: {e}")
+                messages.error(
+                    request,
+                    "An error occurred while sending the confirmation email."
+                )
 
             return redirect('newsletter_signup')
+        else:
+            logging.warning("Invalid form submission.")
+            messages.error(request, "Invalid email address. Please try again.")
     else:
+        logging.info("Rendering newsletter signup form.")
         form = NewsletterSignupForm()
+
     return render(request, 'newsletter_signup.html', {'form': form})
