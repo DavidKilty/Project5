@@ -40,20 +40,19 @@ def success_page(request):
     try:
         ticket = Ticket.objects.get(id=ticket_id)
         if ticket.is_sold:
-            messages.warning(request, "This ticket has already been marked as sold.")
+            messages.warning(request, "This ticket marked as sold.")
         else:
             ticket.is_sold = True
             ticket.buyer = request.user
             ticket.save()
 
-            messages.success(request, f"Ticket '{ticket.event_name}' successfully purchased!")
+            messages.success(request, f"Ticket '{ticket.event_name}' bought!")
     except Ticket.DoesNotExist:
         messages.error(request, "The ticket could not be found.")
-    
+
     del request.session['ticket_id']
 
     return render(request, 'success.html', {'message_type': 'payment'})
-
 
 
 def success_contact(request):
@@ -123,7 +122,6 @@ def ticket_list(request):
     })
 
 
-
 @login_required
 def user_ticket_list(request):
     """Display tickets created by the logged-in user."""
@@ -183,7 +181,7 @@ def create_checkout_session(request):
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
     if ticket.seller == request.user or ticket.is_sold:
-        messages.error(request, "You cannot purchase your own ticket or a sold ticket.")
+        messages.error(request, "You cannot buy, own ticket or sold ticket.")
         return redirect('ticket_list')
 
     request.session['ticket_id'] = ticket_id
@@ -208,7 +206,6 @@ def create_checkout_session(request):
     )
 
     return JsonResponse({'id': session.id})
-
 
 
 @login_required
@@ -278,7 +275,7 @@ def stripe_webhook(request):
                 ticket.save()
 
                 logging.info(f"Ticket {ticket.id} marked as sold and assigned to user {user.username}.")
-                
+
                 subject = f"Ticket Purchased: {ticket.event_name}"
                 message = (
                     f"Dear {ticket.seller.username},\n\n"
