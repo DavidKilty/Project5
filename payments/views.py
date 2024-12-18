@@ -29,8 +29,31 @@ def custom_404_view(request, exception=None):
     return render(request, '404.html', status=404)
 
 
+@login_required
 def success_page(request):
+    """Handle successful payment and update ticket status."""
+    ticket_id = request.session.get('ticket_id')
+    if not ticket_id:
+        messages.error(request, "No ticket found for the successful payment.")
+        return redirect('ticket_list')
+
+    try:
+        ticket = Ticket.objects.get(id=ticket_id)
+        if ticket.is_sold:
+            messages.warning(request, "This ticket has already been marked as sold.")
+        else:
+            ticket.is_sold = True
+            ticket.buyer = request.user
+            ticket.save()
+
+            messages.success(request, f"Ticket '{ticket.event_name}' successfully purchased!")
+    except Ticket.DoesNotExist:
+        messages.error(request, "The ticket could not be found.")
+    
+    del request.session['ticket_id']
+
     return render(request, 'success.html', {'message_type': 'payment'})
+
 
 
 def success_contact(request):
@@ -85,16 +108,20 @@ def test_webhook(request):
 
 @login_required
 def ticket_list(request):
-    """Display tickets not created by the logged-in user."""
+    """Display tickets not created by the logged-in user and not sold."""
     if request.user.is_authenticated:
         tickets = Ticket.objects.filter(
-            is_available=True).exclude(seller=request.user)
+            is_available=True, is_sold=False
+        ).exclude(seller=request.user)
     else:
-        tickets = Ticket.objects.filter(is_available=True)
+        tickets = Ticket.objects.filter(
+            is_available=True, is_sold=False
+        )
     return render(request, 'ticket_list.html', {
         'tickets': tickets,
         'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY
     })
+
 
 
 @login_required
@@ -156,9 +183,10 @@ def create_checkout_session(request):
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
     if ticket.seller == request.user or ticket.is_sold:
-        messages.error
-        (request, "You cannot purchase your own ticket or a sold ticket.")
+        messages.error(request, "You cannot purchase your own ticket or a sold ticket.")
         return redirect('ticket_list')
+
+    request.session['ticket_id'] = ticket_id
 
     session = stripe.checkout.Session.create(
         payment_method_types=['card'],
@@ -178,7 +206,9 @@ def create_checkout_session(request):
         cancel_url=request.build_absolute_uri('/cancel/'),
         client_reference_id=request.user.id,
     )
+
     return JsonResponse({'id': session.id})
+
 
 
 @login_required
@@ -206,19 +236,23 @@ def testimonial_list(request):
 
 @login_required
 def bought_tickets(request):
+    """Display tickets purchased by the logged-in user."""
     tickets = Ticket.objects.filter(buyer=request.user)
     return render(request, 'bought_tickets.html', {'tickets': tickets})
 
 
 @csrf_exempt
 def stripe_webhook(request):
+    """
+    Handles Stripe webhook events, ensuring tickets are marked as sold
+    and moved to the bought tickets list.
+    """
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header,
-                                               endpoint_secret)
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
     except ValueError as e:
         logging.error(f"Webhook Error: Invalid payload - {e}")
         return HttpResponse(status=400)
@@ -231,25 +265,29 @@ def stripe_webhook(request):
         ticket_id = session.get('client_reference_id')
         payment_status = session.get('payment_status')
 
+        logging.info(f"Processing Stripe event for ticket ID: {ticket_id} with status: {payment_status}")
+
         if payment_status == 'paid' and ticket_id:
             try:
                 ticket = Ticket.objects.get(id=ticket_id)
                 user_id = session.get('client_reference_id')
                 user = User.objects.get(id=user_id)
+
                 ticket.is_sold = True
                 ticket.buyer = user
                 ticket.save()
 
+                logging.info(f"Ticket {ticket.id} marked as sold and assigned to user {user.username}.")
+                
                 subject = f"Ticket Purchased: {ticket.event_name}"
                 message = (
                     f"Dear {ticket.seller.username},\n\n"
-                    f"Ticket '{ticket.event_name}'bought {user.username}.\n\n"
+                    f"Your ticket for '{ticket.event_name}' has been purchased by {user.username}.\n\n"
                     "Thank you,\nNight Spot Team"
                 )
                 recipient_list = [ticket.seller.email]
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
-                          recipient_list)
-                logging.info(f"Ticket {ticket_id} marked as sold and email sent.")
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
+                logging.info(f"Email notification sent to {ticket.seller.email}.")
             except Ticket.DoesNotExist:
                 logging.error(f"Ticket with ID {ticket_id} does not exist.")
             except User.DoesNotExist:
