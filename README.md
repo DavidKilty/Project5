@@ -20,37 +20,65 @@
  
  ### Deployment: 
  The project is deployed on Heroku. To deploy:
-  1. Push code to GitHub.
-  2. Connect the Heroku app to GitHub repository.
-  3. Set config vars (e.g. Stripe, Brevo) in Heroku.
-  4. Ensure DEBUG=False and required environment variables are set in settings.py.
-  5. Deploy branch and open via Heroku . 
-  6. Test the live app at the Heroku URL.
+  1. Push code to GitHub. (Ensure the latest version of your code is pushed to the GitHub repository for easy integration with Heroku)
+  2. Connect the Heroku app to GitHub repository. (Log in to Heroku, create a new app, and link it to your GitHub repository under the "Deploy" tab)
+  3. Set config vars (e.g. Stripe, Brevo) in Heroku. (Set necessary configuration variables)
+  4. Ensure DEBUG=False is are set. (Update DEBUG=False in settings.py to disable development mode)
+  5. Ensure all required environment variables. (Ensure all are correctly configured to avoid deployment errors)
+  6. Deploy branch and open via Heroku. (Choose the branch to deploy and click "Deploy Branch" in Heroku) 
+  7. Test the live app at the Heroku URL. (Open the deployed app via the Heroku URL and thoroughly test its functionality)
 
 ![contact image](assets/Ticklist.png)
 
   ### Manual Testing:
-  1. Verify all forms (ticket creation, newsletter signup, etc.) work correctly.
-  2. Ensure secure payments using Stripe.
-  3. Check user authentication and role-based access.
-  4. Test SEO features like sitemap, robots.txt, and meta tags.
 
+   The application underwent extensive manual testing to ensure all functionalities work as intended:
+
+  1. Form Validation: Verified that forms such as ticket creation, newsletter signup, and user registration work correctly, displaying errors for invalid inputs and processing valid submissions smoothly.
+  2. Payment Security: Tested Stripe payment integration to confirm secure and accurate transactions, ensuring tickets are correctly marked as sold post-purchase.
+  3. Authentication and Authorization: Checked user authentication flows, including login, signup, and role-based access restrictions, ensuring non-authenticated users cannot access restricted areas.
+  4. SEO Features: Reviewed sitemap generation, robots.txt, and meta tags to ensure the app complies with SEO best practices and is discoverable by search engines.
+ 
  ### Automated Testing: 
-  1. I ran a simple automated test using 'Django’s TestCase' framework to make sure that my project’s core functionality worked. The test checked that the system could make basic operations, so it passed without any issues. I used the command 'python manage.py' test, and it was "OK".
+
+   Automated testing was conducted using Django's TestCase framework to validate core application functionality.
+   
+   1. A basic test was implemented to verify that critical operations like creating tickets and processing user inputs function without errors.
+  
 
 ![contact image](assets/faqs.png)
 
 ##  E-commerce Business Model
 
-  Night Spot operates as a peer-to-peer ticket marketplace. Users can list tickets for sale or purchase, while others can purchase or inquire about guest list spots. The platform charges a service fee per transaction (using Stripe) to generate revenue. The platform provides value for both buyers, who find tickets for sold-out events, and sellers, who resell tickets they no longer need.
+  Night Spot functions as a peer-to-peer ticket marketplace specializing in nightlife events. The platform connects buyers and sellers of event tickets and guest list spots while charging a service fee per transaction to generate revenue.
+
+1. For Buyers: Users can find tickets for sold-out events or secure guest list spots for exclusive venues. The platform offers a secure checkout process through Stripe.
+3. For Sellers: Users can resell tickets they no longer need or list guest list spots for events. Sellers benefit from a user-friendly interface to manage listings.
+
+  The service aims to provide value to both buyers and sellers by creating a secure, reliable, and user-centric platform for nightlife ticket transactions.
 
 ## How to Use
 
 ![contact image](assets/TicketList2.png)
 
- Night Spot is a platform for users to buy, sell, and buy tickets for nightlife events or nightclub guest list spots. Upon visiting the website, users can browse the list of available tickets. To purchase or sell tickets, users must create an account and log in.. Once logged in, they can access the details of the tickets and proceed to checkout using Stripe for secure payments.
+Night Spot provides a straightforward process for buying and selling tickets for nightlife events and guest list spots:
 
- Users can also create their own listings to sell or buy tickets. Listings are managed through the user dashboard, where sellers can edit or remove their listings. The platform offers a smooth user experience for both buyers and sellers, ensuring secure transactions, notifications, and the ability to leave reviews and ratings after a successful purchase.
+1. Browsing Tickets:
+Upon visiting the website, users can view available tickets for upcoming events directly from the homepage.
+
+2. Account Creation:
+To purchase or list tickets, users must sign up and log in. Registration is simple and ensures secure transactions.
+
+3. Ticket Purchase:
+Logged-in users can select tickets, view detailed information, and proceed to checkout using Stripe's secure payment system. Upon successful payment, tickets are moved to the user's "Bought Tickets" section.
+
+4. Listing Tickets for Sale:
+Users can create their own ticket listings through the dashboard. They can provide event details, pricing, and availability. Listings can be managed directly from the user dashboard, with options to edit or delete.
+
+5. Post-Purchase Features:
+After a successful transaction, users can leave reviews and ratings for their experience, fostering trust and transparency within the community.
+
+The platform ensures a smooth experience for buyers and sellers by integrating features such as real-time updates, secure payments, and user-friendly navigation.
 
 ## My Goal
 
@@ -62,7 +90,7 @@
 
 ## User Stories 
 
- I used the agile tools on Git Hub to track my progress and post user stories.
+ I used the agile tools on Git Hub to track my progress and post user stories. They changed voer time as I had to re work and re deploy. 
 
 ![contact image](assets/Agile1.png)
 ![contact image](assets/Agile2.png)
@@ -89,25 +117,81 @@
  I created a browsing feature where users can view all available tickets. Events are listed with key details such as event name, date, and ticket price. 
 
 ### Social Media 
- I wanted to make a Facebook page for a social media presence, which builds trust with a customer base. It can also act as the communication channel with the customer, for customer service. Unfortunately, Facebook asks I wait up to 180 days before being allowed to make an account.
 
-![contact image](assets/Facebook2.png)
+ I now have a functioning FaceBook page for the project. 
 
-So alternativel I created an Instagram account, that can fulfill what essentially the same needs. It is linked in the NavBar. 
-
-![contact image](assets/Insta.png)
-
+![contact image](assets/facebook.png)
 
 ## Operational Tracking 
 
- I utelized the operational tracking tool in GitHub to keep track of To-Do's and Tasks as they went. 
- https://github.com/users/DavidKilty/projects/3
+ I utelized the operational tracking tool in GitHub to keep track of To-Do's and Tasks as they went. These can be seen here: 
+ 
+ [](https://github.com/DavidKilty/Project5/issues)
+
+ [](https://github.com/users/DavidKilty/projects/3)
 
 ## Data Models 
 
- The data models in Night Spot reflect key aspects of ticket trading and user interaction. The Ticket model holds details about the event, such as the name, date, price, and type. The User model manages all user-related information, such as profile details, authentication, and their role (buyer or seller). These models are connected via relationships to support ticket listings and transactions.
+The data models in Night Spot are carefully designed to capture the core elements of ticket trading, user interaction, and administrative functionalities. These models form the backbone of the platform, enabling seamless user experiences and efficient data management. Below is a detailed breakdown of the key data models:
 
- The platform also features an FAQ model, where common user questions are answered, and a ContactForm model for users to get in touch with the site's administration. Each model is designed to handle CRUD functionality, ensuring flexibility and scalability as new features are introduced.
+### Ticket Model
+
+The Ticket model is the cornerstone of the platform, encapsulating all the essential details about tickets listed for sale or purchase. Key attributes include:
+
+1. Event Details: Stores information such as event name, date, and ticket type (e.g., guest list, skip list, or standard).
+2. Pricing: Tracks ticket price as a decimal field for precision.
+3. Availability: Includes is_available and is_sold boolean fields to manage ticket status dynamically based on user actions (e.g., purchase).
+4. Ownership and Transactions:
+   seller: A foreign key linking the ticket to the user who listed it.
+   buyer: A nullable foreign key for the user who purchases the ticket.
+   unique_code: A unique identifier for each ticket, useful for verification or QR code generation.
+
+5. Audit Fields: Includes fields like modified_at to log updates and ensure traceability.
+
+### User Model
+
+The platform leverages Django's built-in User model for managing user data, extended with custom attributes and relationships to accommodate the unique roles of buyers and sellers:
+
+1. Authentication and Profile Management: Handles user signup, login, and profile updates.
+2. Role Differentiation: Supports role-specific functionalities, enabling buyers to purchase tickets and sellers to list and manage their tickets.
+3. Relationships: Links to other models (e.g., Ticket and Testimonial) to reflect user actions and contributions to the platform.
+
+### FAQ Model
+The FAQ model provides a centralized repository for frequently asked questions and their answers, enhancing user accessibility and reducing support inquiries:
+
+1. Question and Answer Fields: Stores common queries and their corresponding solutions in text fields.
+2. Audit Fields: Tracks creation and update timestamps to ensure the FAQ section remains current and accurate.
+
+This model is vital for maintaining an up-to-date knowledge base and improving overall user satisfaction.
+
+### ContactForm Model
+
+The ContactForm model allows users to reach out to the platform administrators with queries, feedback, or issues:
+
+1. User Input Fields: Includes fields for the user's name, email address, and message content.
+2. Backend Processing: Integrates with email functionality to forward submissions to the admin team.
+3. Validation: Ensures that all required fields are completed correctly before submission.
+
+This model supports direct user communication, fostering trust and responsiveness.
+
+### Testimonial Model
+
+The Testimonial model provides a way for users to share feedback about their experiences with the platform:
+
+1. User Relationship: Links testimonials to their authors via a foreign key.
+2. Content Fields: Includes fields for a title and detailed feedback.
+3. Approval System: Features an admin-controlled approved field, ensuring only appropriate content is displayed publicly.
+
+### Scalability and CRUD Functionality
+
+All models are designed with flexibility in mind, enabling full CRUD (Create, Read, Update, Delete) operations. This architecture ensures that:
+
+1. Users: Can manage tickets and profiles easily.
+2. Admins: Have full control over content like FAQs and testimonials.
+3. Platform Growth: The structure accommodates new features and data relationships as the platform evolves.
+
+By building a robust and interconnected data model framework, Night Spot effectively supports its mission of providing a secure, user-friendly, and scalable ticket marketplace for nightlife events.
+
 
 ![contact image](assets/ContactForm.png)
 
@@ -118,15 +202,21 @@ So alternativel I created an Instagram account, that can fulfill what essentiall
 
 ### Night Spot's development is built on several inspirations and open-source resources. 
 
-The below documentation provided extensive guidance and allowed me the integrate required technologies
- 1. Stripe 
- 2. Django  
- 3. Brevo 
+### Documentation and Guides  
 
-The below resources helped trouble shoot, integrate and enhance my code
- 1. Stack Overflow 
- 2. Real Python 
- 3. W3Schools 
+The below official documentation provided detailed guidance, enabling the integration of essential technologies and frameworks into the project:
+
+  1. Stripe Documentation - Helped with setting up and managing secure payment processing, webhooks, and Stripe Checkout sessions.
+  2. Django Documentation - Served as a comprehensive guide for implementing the backend framework, user authentication, and data modeling.
+  3. Brevo (Sendinblue) API Documentation - Assisted in integrating the newsletter signup functionality for user engagement.
+
+### Troubleshooting and Enhancement Resources
+
+The below resources were instrumental in troubleshooting code issues, learning best practices, and enhancing functionality:
+
+ 1. Stack Overflow - Helped resolve specific coding challenges and provided community-driven insights into best practices.
+ 2. Real Python - Offered in-depth tutorials and examples for Django development and advanced Python techniques.
+ 3. W3Schools - Provided a reference for front-end technologies, including HTML, CSS, and JavaScript.
  
 
 ### Libraries Utilized
