@@ -38,7 +38,20 @@
   2. Payment Security: Tested Stripe payment integration to confirm secure and accurate transactions, ensuring tickets are correctly marked as sold post-purchase.
   3. Authentication and Authorization: Checked user authentication flows, including login, signup, and role-based access restrictions, ensuring non-authenticated users cannot access restricted areas.
   4. SEO Features: Reviewed sitemap generation, robots.txt, and meta tags to ensure the app complies with SEO best practices and is discoverable by search engines.
- 
+
+ ### Validators 
+
+I used the following Validators to check and format my code
+
+1. CI Python Linter from Code Institute. There were some issues with lines exceeding limits, but these were few, and these lines are vital for project to work. 
+[](https://pep8ci.herokuapp.com/)
+
+2.  W3C CSS Validation Service. Only issue was not indicitating code language in most HTML files, but this was not needed as I was extending base HTML.
+[](https://validator.w3.org/)
+
+3. W3C CSS Validation Service. I checked the deployed site via the URL input and it returned no errors.
+[](https://validator.w3.org/detailed.html)
+
  ### Automated Testing: 
 
    Automated testing was conducted using Django's TestCase framework to validate core application functionality.
