@@ -5,10 +5,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.conf import settings
-from django.contrib import messages 
+from django.contrib import messages
 from django.contrib.sitemaps import Sitemap
 from .models import Testimonial
 from .forms import TestimonialForm
+from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 
 import stripe
 import sib_api_v3_sdk
@@ -21,9 +23,11 @@ from .forms import TicketForm, ContactForm, NewsletterSignupForm
 stripe.api_key = settings.STRIPE_SECRET_KEY
 stripe.api_version = '2024-06-20'
 
+
 def custom_404_view(request, exception=None):
     """Custom 404 error page."""
     return render(request, '404.html', status=404)
+
 
 def success_page(request):
     return render(request, 'success.html', {'message_type': 'payment'})
@@ -61,7 +65,8 @@ def test_webhook(request):
         "type": "checkout.session.completed",
         "data": {
             "object": {
-                "id": "cs_test_a1OeVS18CDjsE8vk4bKKBW6auChDjqN6ZRIO2FCDtCjoshAaFpBr442p2M",
+                "id":
+                "cs_test_a1OeVS18CDjsE8vk4bKKBW6auChDjqN6ZRIO2FCDtCjoshAaFpBr442p2M",
                 "client_reference_id": "8",
                 "payment_status": "paid"
             }
@@ -70,7 +75,8 @@ def test_webhook(request):
 
     from django.test import RequestFactory
     factory = RequestFactory()
-    test_request = factory.post('/webhook/', payload, content_type='application/json')
+    test_request = factory.post('/webhook/', payload,
+                                content_type='application/json')
     test_request.META['HTTP_STRIPE_SIGNATURE'] = 'test_signature'
 
     response = stripe_webhook(test_request)
@@ -81,7 +87,8 @@ def test_webhook(request):
 def ticket_list(request):
     """Display tickets not created by the logged-in user."""
     if request.user.is_authenticated:
-        tickets = Ticket.objects.filter(is_available=True).exclude(seller=request.user)
+        tickets = Ticket.objects.filter(
+            is_available=True).exclude(seller=request.user)
     else:
         tickets = Ticket.objects.filter(is_available=True)
     return render(request, 'ticket_list.html', {
@@ -96,10 +103,11 @@ def user_ticket_list(request):
     user_tickets = Ticket.objects.filter(seller=request.user)
     return render(request, 'user_ticket_list.html', {'tickets': user_tickets})
 
+
 @login_required
 def edit_ticket(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk, seller=request.user)
-    if ticket.buyer: 
+    if ticket.buyer:
         messages.error(request, "You cannot edit a ticket that has been sold.")
         return redirect('user_ticket_list')
     ticket = get_object_or_404(Ticket, pk=pk)
@@ -133,9 +141,10 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             subject = "Welcome to Night Spot!"
-            message = f"Dear {user.username},\n\nThank you for signing up at Night Spot. We're excited to have you on board.\n\nBest regards,\nNight Spot Team"
+            message = f"Dear {user.username},\nYou signed up!"
             recipient_list = [user.email]
-            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
+            send_mail
+            (subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
             return redirect('login')
     else:
         form = UserCreationForm()
@@ -148,7 +157,8 @@ def create_checkout_session(request):
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
     if ticket.seller == request.user or ticket.is_sold:
-        messages.error(request, "You cannot purchase your own ticket or a sold ticket.")
+        messages.error
+        (request, "You cannot purchase your own ticket or a sold ticket.")
         return redirect('ticket_list')
 
     session = stripe.checkout.Session.create(
@@ -167,9 +177,8 @@ def create_checkout_session(request):
         mode='payment',
         success_url=request.build_absolute_uri('/success/'),
         cancel_url=request.build_absolute_uri('/cancel/'),
-        client_reference_id=ticket.id,
+        client_reference_id=request.user.id,
     )
-
     return JsonResponse({'id': session.id})
 
 
@@ -182,16 +191,18 @@ def submit_testimonial(request):
             testimonial = form.save(commit=False)
             testimonial.user = request.user
             testimonial.save()
-            messages.success(request, "Your testimonial has been submitted and is pending approval.")
+            messages.success(request, "Your testimonial pending approval.")
             return redirect("testimonial_list")
     else:
         form = TestimonialForm()
     return render(request, "submit_testimonial.html", {"form": form})
 
+
 def testimonial_list(request):
     """View to display approved testimonials."""
     testimonials = Testimonial.objects.filter(approved=True)
-    return render(request, "testimonial_list.html", {"testimonials": testimonials})
+    return render(request, "testimonial_list.html", {"testimonials":
+                  testimonials})
 
 
 @login_required
@@ -199,14 +210,16 @@ def bought_tickets(request):
     tickets = Ticket.objects.filter(buyer=request.user)
     return render(request, 'bought_tickets.html', {'tickets': tickets})
 
-@login_required
+
+@csrf_exempt
 def stripe_webhook(request):
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        event = stripe.Webhook.construct_event(payload, sig_header,
+                                               endpoint_secret)
     except ValueError as e:
         logging.error(f"Webhook Error: Invalid payload - {e}")
         return HttpResponse(status=400)
@@ -222,26 +235,30 @@ def stripe_webhook(request):
         if payment_status == 'paid' and ticket_id:
             try:
                 ticket = Ticket.objects.get(id=ticket_id)
+                user_id = session.get('client_reference_id')
+                user = User.objects.get(id=user_id)
                 ticket.is_sold = True
-                ticket.buyer = request.user
+                ticket.buyer = user
                 ticket.save()
 
                 subject = f"Ticket Purchased: {ticket.event_name}"
                 message = (
                     f"Dear {ticket.seller.username},\n\n"
-                    f"Your ticket for '{ticket.event_name}' has been purchased by {request.user.username}.\n\n"
+                    f"Ticket '{ticket.event_name}'bought {user.username}.\n\n"
                     "Thank you,\nNight Spot Team"
                 )
                 recipient_list = [ticket.seller.email]
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
+                          recipient_list)
                 logging.info(f"Ticket {ticket_id} marked as sold and email sent.")
             except Ticket.DoesNotExist:
                 logging.error(f"Ticket with ID {ticket_id} does not exist.")
+            except User.DoesNotExist:
+                logging.error(f"User with ID {user_id} does not exist.")
             except Exception as e:
                 logging.error(f"Error processing ticket purchase: {e}")
 
     return HttpResponse(status=200)
-
 
 
 def faq_list(request):
@@ -262,11 +279,14 @@ def contact(request):
             from_email = form.cleaned_data['email']
 
             try:
-                send_mail(subject, message, from_email, [settings.DEFAULT_FROM_EMAIL])
-                messages.success(request, "Your message has been sent successfully.")
+                send_mail(subject, message,
+                          from_email, [settings.DEFAULT_FROM_EMAIL])
+                messages.success(request,
+                                 "Your message has been sent successfully.")
             except Exception as e:
                 logging.error(f"Error sending contact email: {e}")
-                messages.error(request, "An error occurred while sending your message.")
+                messages.error(request,
+                               "An error occurred while sending your message.")
 
             return redirect('success_contact')
     else:
@@ -309,28 +329,32 @@ def newsletter_signup(request):
             configuration = sib_api_v3_sdk.Configuration()
             configuration.api_key['api-key'] = settings.BREVO_API_KEY
 
-            api_instance = sib_api_v3_sdk.ContactsApi(sib_api_v3_sdk.ApiClient(configuration))
+            api_instance = sib_api_v3_sdk.ContactsApi
+            (sib_api_v3_sdk.ApiClient(configuration))
             contact = sib_api_v3_sdk.CreateContact(email=email)
 
-            try:
-                api_instance.create_contact(contact)
-                messages.success(request, "You've successfully subscribed to the newsletter.")
+        try:
+            api_instance.create_contact(contact)
+            messages.success(request, "Successfully subscribed.")
 
-                subject = "Newsletter Subscription Confirmation"
-                message = (
+            subject = "Newsletter Subscription Confirmation"
+            message = (
                     "Hello,\n\n"
                     "Thank you for subscribing to the Night Spot newsletter. "
                     "Stay tuned for the latest updates and events!\n\n"
                     "Best regards,\nNight Spot Team"
                 )
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
 
-            except ApiException as e:
-                logging.error(f"Brevo API error: {e}")
-                messages.error(request, "An error occurred while adding you to the newsletter.")
-            except Exception as e:
-                logging.error(f"Email sending error: {e}")
-                messages.error(request, "An error occurred while sending the confirmation email.")
+        except ApiException as e:
+            logging.error(f"Brevo API error: {e}")
+            messages.error(request, "An error occurred in signup.")
+
+        except Exception as e:
+            logging.error(f"Email sending error: {e}")
+            messages.error
+            (request,
+             "An error occurred while sending the confirmation email.")
 
             return redirect('newsletter_signup')
     else:

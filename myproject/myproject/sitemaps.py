@@ -8,7 +8,7 @@ from payments.models import Ticket
 
 class TicketSitemap(Sitemap):
     """
-    Sitemap for Ticket model to manage the priority and change frequency of tickets.
+    Sitemap  Ticket model manages priority and change frequency of tickets.
     """
     changefreq = 'daily'
     priority = 0.8
@@ -22,7 +22,7 @@ class TicketSitemap(Sitemap):
     def lastmod(self, obj):
         """
         Returns the last modified date of a Ticket object.
-        
+
         Args:
             obj (Ticket): The Ticket instance.
 

@@ -13,14 +13,16 @@ class TicketForm(forms.ModelForm):
         model = Ticket
         fields = ['event_name', 'event_date', 'ticket_price', 'ticket_type']
         widgets = {
-            'event_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-        }
+            'event_date':
+                forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+           }
 
     def clean_event_date(self):
         """Validate that the event date is not in the past."""
         event_date = self.cleaned_data['event_date']
         if event_date < timezone.now():
-            raise forms.ValidationError("The event date cannot be in the past.")
+            raise forms.ValidationError
+            ("The event date cannot be in the past.")
         return event_date
 
     def clean_ticket_price(self):
@@ -66,11 +68,15 @@ class NewsletterSignupForm(forms.Form):
         )
     )
 
+
 class TestimonialForm(forms.ModelForm):
     class Meta:
         model = Testimonial
         fields = ["title", "content"]
         widgets = {
-            "title": forms.TextInput(attrs={"class": "form-control", "placeholder": "Short headline"}),
-            "content": forms.Textarea(attrs={"class": "form-control", "rows": 4, "placeholder": "Your testimonial here..."}),
-        }
+            "title": forms.TextInput
+            (attrs={"class": "form-control", "placeholder": "Short headline"}),
+            "content":
+            forms.Textarea(attrs={"class": "form-control", "rows":
+                        4, "placeholder": "Your testimonial her..."}),
+                  }

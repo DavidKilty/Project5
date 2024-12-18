@@ -1,7 +1,7 @@
 """
 Django settings for myproject.
 """
- 
+
 from pathlib import Path
 import os
 import environ
@@ -11,7 +11,8 @@ import django_heroku
 
 
 env = environ.Env()
-environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
+environ.Env.read_env
+(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,17 +32,17 @@ ALLOWED_HOSTS = [
     '8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',
     'nightspot.herokuapp.com',
     'nightspot.onrender.com',
-    'https://nightspot-d83df74ddcea.herokuapp.com/stripe-webhook/', 
+    'https://nightspot-d83df74ddcea.herokuapp.com/stripe-webhook/',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://8000-davidkilty-project5-ovq0au8xcxt.ws.codeinstitute-ide.net',  
-    'https://8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',  
+    'https://8000-davidkilty-project5-ovq0au8xcxt.ws.codeinstitute-ide.net',
+    'https://8000-davidkilty-project5-of8fv53e6w4.ws.codeinstitute-ide.net',
 ]
 
 
-CSRF_COOKIE_SECURE = False  
-SESSION_COOKIE_SECURE = False 
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
 
 
 INSTALLED_APPS = [
@@ -77,7 +78,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',  
+                'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -96,10 +97,11 @@ DATABASES = {
 }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+ {'NAME':
+  'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+ {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+ {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+ {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 LANGUAGE_CODE = 'en-us'

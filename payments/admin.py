@@ -8,6 +8,7 @@ class FAQAdmin(admin.ModelAdmin):
     list_display = ('question', 'created_at', 'updated_at')
     search_fields = ('question',)
 
+
 @admin.register(Testimonial)
 class TestimonialAdmin(admin.ModelAdmin):
     list_display = ("user", "title", "date_posted", "approved")
